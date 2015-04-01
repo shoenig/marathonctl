@@ -29,17 +29,17 @@ type Application struct {
 	Args            []string            `json:"args,omitempty"`
 	Constraints     [][]string          `json:"constraints,omitempty"`
 	Container       *Container          `json:"container,omitempty"`
-	CPUs            float               `json:"cpus,omitempty"`
-	Disk            float               `json:"disk,omitempty"`
+	CPUs            float64             `json:"cpus,omitempty"`
+	Disk            float64             `json:"disk,omitempty"`
 	Env             map[string]string   `json:"env,omitempty"`
 	Executor        string              `json:"executor,omitempty"`
 	HealthChecks    []*HealthCheck      `json:"healthChecks,omitempty"`
 	Instances       int                 `json:"instances,omitemptys"`
-	Mem             float               `json:"mem,omitempty"`
+	Mem             float64             `json:"mem,omitempty"`
 	Tasks           []*Task             `json:"tasks,omitempty"`
 	Ports           []int               `json:"ports,omitempty"`
 	RequirePorts    bool                `json:"requirePorts,omitempty"`
-	BackoffFactor   float               `json:"backoffFactor,omitempty"`
+	BackoffFactor   float64             `json:"backoffFactor,omitempty"`
 	DeploymentID    []map[string]string `json:"deployments,omitempty"`
 	Dependencies    []string            `json:"dependencies,omitempty"`
 	TasksRunning    int                 `json:"tasksRunning,omitempty"`
@@ -76,7 +76,7 @@ type Docker struct {
 }
 
 type UpgradeStrategy struct {
-	MinimumHealthCapacity float `json:"minimumHealthCapacity,omitempty"`
+	MinimumHealthCapacity float64 `json:"minimumHealthCapacity,omitempty"`
 }
 
 type HealthCheck struct {
