@@ -29,11 +29,12 @@ func DoAction(m *Marathon, args []string) {
 
 func ListApps(m *Marathon) {
 	c := http.Client{}
-	request, e := http.NewRequest("GET", m.host, nil)
+	request, e := http.NewRequest("GET", m.Host+"/v2/apps", nil)
 	if e != nil {
 		fmt.Println("failed to create request:", e)
 		os.Exit(1)
 	}
+	request.SetBasicAuth(m.User, m.Pass)
 	response, e := c.Do(request)
 	if e != nil {
 		fmt.Println("failed to get response:", e)

@@ -5,16 +5,16 @@ import (
 )
 
 type Marathon struct {
-	host string // todo hosts
-	user string
-	pass string
+	Host string // todo hosts
+	User string
+	Pass string
 }
 
 func NewMarathon(host, login string) *Marathon {
 	toks := strings.SplitN(login, ":", 2)
 	return &Marathon{
-		host: host,
-		user: toks[0],
-		pass: toks[1],
+		Host: host,
+		User: toks[0],
+		Pass: toks[1],
 	}
 }
