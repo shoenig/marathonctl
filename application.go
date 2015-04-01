@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -23,8 +24,18 @@ func Load(filename string) (*Application, error) {
 
 // structs mostly copied from https://github.com/gambol99/go-marathon
 
+type Applications struct {
+	Apps []Application `json:"apps"`
+}
+
+func (a Applications) List() {
+	for _, app := range a.Apps {
+		fmt.Println("'"+app.ID+"'", app.Version, app.User)
+	}
+}
+
 type Application struct {
-	ID              string              `json:"id",omitempty`
+	ID              string              `json:"id"`
 	Cmd             string              `json:"cmd,omitempty"`
 	Args            []string            `json:"args,omitempty"`
 	Constraints     [][]string          `json:"constraints,omitempty"`
