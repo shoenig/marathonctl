@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"io"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -41,14 +40,16 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 func (c *Client) GET(path string) *http.Request {
 	url := c.marathon.Host + path
 	r, e := http.NewRequest("GET", url, nil)
-	if e != nil {
-		fmt.Println("creation of get request failed:", e)
-		os.Exit(1)
-	}
+	Die(e != nil, "failed to crete get request", e)
 	r.SetBasicAuth(c.marathon.User, c.marathon.Pass)
 	return r
 }
 
-// func (c *Client) POST() *http.Request {
-// 	return nil
-// }
+func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
+	url := c.marathon.Host + path
+	r, e := http.NewRequest("POST", url, body)
+	Die(e != nil, "failed to create post request", e)
+	r.Header.Set("Content-Type", "application/json")
+	r.SetBasicAuth(c.marathon.User, c.marathon.Pass)
+	return r
+}

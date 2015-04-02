@@ -3,44 +3,75 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/url"
+	"os"
 )
 
 func DoAction(c *Client, args []string) {
 	Die(len(args) < 1, "must specify an action")
 
-	action := args[0]
-
-	switch action {
+	switch args[0] {
 	case "create":
-		Die(true, "create not supported yet")
+		DoCreate(c, args)
 	case "list":
-		var id string
-		var version string
-
-		if len(args) > 1 {
-			id = args[1]
-		}
-
-		if len(args) > 2 {
-			version = args[2]
-		}
-
-		c.ListApps(id, version)
-
+		DoList(c, args)
+	case "versions":
+		DoVersions(c, args)
 	default:
-		Die(true, "unknown action", action)
+		Die(true, "unknown action", args[0])
 	}
 }
 
+func DoCreate(c *Client, args []string) {
+	Die(len(args) < 2, "must supply jsonfile")
+	fmt.Println("create", args[1])
+	c.CreateApp(args[1])
+}
+
+func DoList(c *Client, args []string) {
+	var id string
+	var version string
+
+	if len(args) > 1 {
+		id = args[1]
+	}
+
+	if len(args) > 2 {
+		version = args[2]
+	}
+
+	c.ListApps(id, version)
+}
+
+func DoVersions(c *Client, args []string) {
+	Die(len(args) < 2, "must specifiy id")
+	id := args[1]
+	c.ListVersions(id)
+}
+
+func (c *Client) ListVersions(id string) {
+	path := "/v2/apps/" + id + "/versions"
+	request := c.GET(path)
+	response, e := c.Do(request)
+	Die(e != nil, "failed to list verions", e)
+	defer response.Body.Close()
+	b, e := ioutil.ReadAll(response.Body)
+	Die(e != nil, "could not read response", e)
+	v := string(b)
+	fmt.Println("versions = ", v)
+}
+
 func (c *Client) ListApps(id, version string) {
+	id = url.QueryEscape(id) // todo whys no work??
 
 	path := "/v2/apps"
-	if id != "" {
-		path += "/" + id
-		if version != "" {
-			path += "/versions/" + version
-		}
-	} // todo fix
+
+	if id != "" && version == "" {
+		path += "/" + id + "?embed=apps.tasks"
+	} else if id != "" && version != "" {
+		path += "/" + id + "/versions/" + version
+	}
 
 	fmt.Println("path", path)
 
@@ -55,17 +86,29 @@ func (c *Client) ListApps(id, version string) {
 	var applications Applications
 	e = dec.Decode(&applications)
 	Die(e != nil, "failed to unmarshal response", e)
+	fmt.Println(applications)
 
 	applications.List()
 }
 
-// func CreateApp(m *Marathon, jsonfile string) {
-// 	body, e := ioutil.ReadAll(jsonfile)
-// 	Die(e != nil, "failed to read json file", e)
+func (c *Client) CreateApp(jsonfile string) {
+	f, e := os.Open(jsonfile)
+	Die(e != nil, "failed to open jsonfile", e)
+	defer f.Close()
 
-// 	c := http.Client{}
-// 	url := m.Host + "/v2/apps" // do POST
+	request := c.POST("/v2/apps", f)
+	response, e := c.Do(request)
+	Die(e != nil, "failed to get response", e)
+	defer response.Body.Close()
 
-// 	request, e := http.NewRequest("POST", url, nil)
-// 	Die(e != nil, "failed to create request", e)
-// }
+	b, e := ioutil.ReadAll(response.Body)
+	Die(e != nil, "failed", e)
+
+	fmt.Println(string(b))
+
+	// dec := json.NewDecoder(response.Body)
+	// var application Application
+	// e = dec.Decode(&application)
+	// Die(e != nil, "failed to decode response", e)
+	// fmt.Println(application)
+}
