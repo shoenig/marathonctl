@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -61,6 +62,16 @@ func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
 	url := c.marathon.Host + path
 	r, e := http.NewRequest("POST", url, body)
 	Check(e == nil, "failed to create post request", e)
+	r.Header.Set("Content-Type", "application/json")
+	r.SetBasicAuth(c.marathon.User, c.marathon.Pass)
+	return r
+}
+
+func (c *Client) DELETE(path string) *http.Request {
+	url := c.marathon.Host + path
+	fmt.Println("url", url)
+	r, e := http.NewRequest("DELETE", url, nil)
+	Check(e == nil, "failed to create delete request", e)
 	r.Header.Set("Content-Type", "application/json")
 	r.SetBasicAuth(c.marathon.User, c.marathon.Pass)
 	return r

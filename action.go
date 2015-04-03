@@ -102,3 +102,20 @@ func (u Create) Apply(args []string) {
 	fmt.Println(application.ID, application.Version)
 
 }
+
+// destroy
+type Destroy struct {
+	client *Client
+}
+
+func (d Destroy) Apply(args []string) {
+	Check(len(args) == 1, "must specify id")
+	path := "/v2/apps/" + url.QueryEscape(args[0])
+	request := d.client.DELETE(path)
+	response, e := d.client.Do(request)
+	Check(e == nil, "destroy app failed", e)
+	c := response.StatusCode
+	// documentation says this is 204, wtf
+	Check(c == 200, "destroy app bad status", c)
+	fmt.Println("destroyed", args[0])
+}

@@ -36,6 +36,7 @@ func main() {
 			"list":     List{c},
 			"create":   Create{c},
 			"versions": Versions{c},
+			"destroy":  Destroy{c},
 		},
 	}
 
