@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -28,7 +27,6 @@ type Tool struct {
 }
 
 func (t *Tool) Start(args []string) {
-	fmt.Println("args", args, len(args))
 	Check(len(args) > 0, "no action specified")
 	action, ok := t.actions[args[0]]
 	Check(ok, "unknown action", action)

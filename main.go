@@ -4,12 +4,15 @@
 //     marathonctl [-c config] [-h host] [-u user:password] <action ...>
 // Actions
 //     -- list --
-//     list            - lists all applications
-//     list id         - lists applications of id
-//     list id version - lists applications of id and version
+//     list                - lists all applications
+//     list [id]           - lists applications of id
+//     list [id] [version] - lists applications of id and version
+//
+//    -- versions --
+//    versions [id] - list all versions of application
 //
 //     -- create --
-//     create <app json file> - deploy application
+//     create [jsonfile] - deploy application defined in jsonfile
 
 // Command marathonctl gives you control over Marathon from the command line.
 package main
@@ -23,21 +26,20 @@ import (
 func main() {
 	host, login, e := Config()
 
-	Check(e == nil, "failed to get a mesos configuration", e)
+	Check(e == nil, "failed to get a Marathon configuration", e)
 
 	m := NewMarathon(host, login)
 	c := NewClient(m)
 	t := &Tool{
 		client: c,
 		actions: map[string]Action{
-			"list":   List{c},
-			"upload": Upload{c},
+			"list":     List{c},
+			"create":   Create{c},
+			"versions": Versions{c},
 		},
 	}
 
 	t.Start(flag.Args())
-
-	// DoAction(c, flag.Args())
 }
 
 func Check(b bool, args ...interface{}) {
