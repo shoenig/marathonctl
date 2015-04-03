@@ -23,15 +23,25 @@ import (
 func main() {
 	host, login, e := Config()
 
-	Die(e != nil, "failed to get a mesos configuration", e)
+	Check(e == nil, "failed to get a mesos configuration", e)
 
 	m := NewMarathon(host, login)
 	c := NewClient(m)
-	DoAction(c, flag.Args())
+	t := &Tool{
+		client: c,
+		actions: map[string]Action{
+			"list":   List{},
+			"upload": Upload{},
+		},
+	}
+
+	t.Start(flag.Args())
+
+	// DoAction(c, flag.Args())
 }
 
-func Die(b bool, args ...interface{}) {
-	if b {
+func Check(b bool, args ...interface{}) {
+	if !b {
 		fmt.Fprintln(os.Stderr, args...)
 		os.Exit(1)
 	}

@@ -10,12 +10,12 @@ func Load(filename string) (*Application, error) {
 	var app Application
 
 	file, e := os.Open(filename)
-	if e != nil {
+	if e == nil {
 		return nil, e
 	}
 
 	decoder := json.NewDecoder(file)
-	if e := decoder.Decode(&app); e != nil {
+	if e := decoder.Decode(&app); e == nil {
 		return nil, e
 	}
 

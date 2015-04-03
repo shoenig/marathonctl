@@ -1,114 +1,35 @@
 package main
 
-import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/url"
-	"os"
-)
+import "fmt"
 
-func DoAction(c *Client, args []string) {
-	Die(len(args) < 1, "must specify an action")
-
-	switch args[0] {
-	case "create":
-		DoCreate(c, args)
-	case "list":
-		DoList(c, args)
-	case "versions":
-		DoVersions(c, args)
-	default:
-		Die(true, "unknown action", args[0])
-	}
+type Action interface {
+	Apply(args []string)
 }
 
-func DoCreate(c *Client, args []string) {
-	Die(len(args) < 2, "must supply jsonfile")
-	fmt.Println("create", args[1])
-	c.CreateApp(args[1])
+// list
+type List struct {
+	client *Client
 }
 
-func DoList(c *Client, args []string) {
+func (l List) Apply(args []string) {
 	var id string
 	var version string
 
-	if len(args) > 1 {
-		id = args[1]
+	if len(args) > 0 {
+		id = args[0]
+	} else if len(args) > 1 {
+		version = args[1]
 	}
-
-	if len(args) > 2 {
-		version = args[2]
-	}
-
-	c.ListApps(id, version)
+	l.list(id, version)
 }
 
-func DoVersions(c *Client, args []string) {
-	Die(len(args) < 2, "must specifiy id")
-	id := args[1]
-	c.ListVersions(id)
+func (l List) list(id, version string) {
+	fmt.Println("list", id, version)
 }
 
-func (c *Client) ListVersions(id string) {
-	path := "/v2/apps/" + id + "/versions"
-	request := c.GET(path)
-	response, e := c.Do(request)
-	Die(e != nil, "failed to list verions", e)
-	defer response.Body.Close()
-	b, e := ioutil.ReadAll(response.Body)
-	Die(e != nil, "could not read response", e)
-	v := string(b)
-	fmt.Println("versions = ", v)
-}
+// upload
+type Upload struct{}
 
-func (c *Client) ListApps(id, version string) {
-	id = url.QueryEscape(id) // todo whys no work??
+func (u Upload) Apply(args []string) {
 
-	path := "/v2/apps"
-
-	if id != "" && version == "" {
-		path += "/" + id + "?embed=apps.tasks"
-	} else if id != "" && version != "" {
-		path += "/" + id + "/versions/" + version
-	}
-
-	fmt.Println("path", path)
-
-	request := c.GET(path)
-
-	response, e := c.Do(request)
-	Die(e != nil, "failed to get response", e)
-
-	defer response.Body.Close()
-
-	dec := json.NewDecoder(response.Body)
-	var applications Applications
-	e = dec.Decode(&applications)
-	Die(e != nil, "failed to unmarshal response", e)
-	fmt.Println(applications)
-
-	applications.List()
-}
-
-func (c *Client) CreateApp(jsonfile string) {
-	f, e := os.Open(jsonfile)
-	Die(e != nil, "failed to open jsonfile", e)
-	defer f.Close()
-
-	request := c.POST("/v2/apps", f)
-	response, e := c.Do(request)
-	Die(e != nil, "failed to get response", e)
-	defer response.Body.Close()
-
-	b, e := ioutil.ReadAll(response.Body)
-	Die(e != nil, "failed", e)
-
-	fmt.Println(string(b))
-
-	// dec := json.NewDecoder(response.Body)
-	// var application Application
-	// e = dec.Decode(&application)
-	// Die(e != nil, "failed to decode response", e)
-	// fmt.Println(application)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -19,6 +20,19 @@ func NewMarathon(host, login string) *Marathon {
 		User: toks[0],
 		Pass: toks[1],
 	}
+}
+
+type Tool struct {
+	client  *Client
+	actions map[string]Action
+}
+
+func (t *Tool) Start(args []string) {
+	fmt.Println("args", args, len(args))
+	Check(len(args) > 0, "no action specified")
+	action, ok := t.actions[args[0]]
+	Check(ok, "unknown action", action)
+	action.Apply(args[1:])
 }
 
 type Client struct {
@@ -40,7 +54,7 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 func (c *Client) GET(path string) *http.Request {
 	url := c.marathon.Host + path
 	r, e := http.NewRequest("GET", url, nil)
-	Die(e != nil, "failed to crete get request", e)
+	Check(e == nil, "failed to crete get request", e)
 	r.SetBasicAuth(c.marathon.User, c.marathon.Pass)
 	return r
 }
@@ -48,7 +62,7 @@ func (c *Client) GET(path string) *http.Request {
 func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
 	url := c.marathon.Host + path
 	r, e := http.NewRequest("POST", url, body)
-	Die(e != nil, "failed to create post request", e)
+	Check(e == nil, "failed to create post request", e)
 	r.Header.Set("Content-Type", "application/json")
 	r.SetBasicAuth(c.marathon.User, c.marathon.Pass)
 	return r
