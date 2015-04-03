@@ -53,7 +53,8 @@ func (l List) list(id, version string) {
 	Check(e == nil, "failed to unmarshal response", e)
 	// fmt.Println(applications)
 
-	applications.List()
+	text := applications.String()
+	fmt.Println(Columnize(text))
 }
 
 // upload

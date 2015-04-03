@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
@@ -28,11 +28,17 @@ type Applications struct {
 	Apps []Application `json:"apps"`
 }
 
-func (a Applications) List() {
+func (a Applications) String() string {
+	var b bytes.Buffer
 	for _, app := range a.Apps {
-		// todo, pretty format columns
-		fmt.Println(app.ID, app.Version, app.User)
+		b.WriteString(app.ID)
+		b.WriteString(" ")
+		b.WriteString(app.Version)
+		b.WriteString(" ")
+		b.WriteString(app.User)
+		b.WriteString("\n")
 	}
+	return b.String()
 }
 
 type Application struct {

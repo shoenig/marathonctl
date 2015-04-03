@@ -12,21 +12,6 @@ func DoCreate(c *Client, args []string) {
 	c.CreateApp(args[1])
 }
 
-func DoList(c *Client, args []string) {
-	var id string
-	var version string
-
-	if len(args) > 1 {
-		id = args[1]
-	}
-
-	if len(args) > 2 {
-		version = args[2]
-	}
-
-	c.ListApps(id, version)
-}
-
 func DoVersions(c *Client, args []string) {
 	Check(len(args) < 2, "must specifiy id")
 	id := args[1]
