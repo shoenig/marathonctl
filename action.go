@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"net/url"
+)
 
 type Action interface {
 	Apply(args []string)
@@ -24,11 +28,38 @@ func (l List) Apply(args []string) {
 }
 
 func (l List) list(id, version string) {
-	fmt.Println("list", id, version)
+	id = url.QueryEscape(id) // todo whys no work??
+
+	path := "/v2/apps"
+
+	if id != "" && version == "" {
+		path += "/" + id + "?embed=apps.tasks"
+	} else if id != "" && version != "" {
+		path += "/" + id + "/versions/" + version
+	}
+
+	fmt.Println("path", path)
+
+	request := l.client.GET(path)
+
+	response, e := l.client.Do(request)
+	Check(e == nil, "failed to get response", e)
+
+	defer response.Body.Close()
+
+	dec := json.NewDecoder(response.Body)
+	var applications Applications
+	e = dec.Decode(&applications)
+	Check(e == nil, "failed to unmarshal response", e)
+	// fmt.Println(applications)
+
+	applications.List()
 }
 
 // upload
-type Upload struct{}
+type Upload struct {
+	client *Client
+}
 
 func (u Upload) Apply(args []string) {
 

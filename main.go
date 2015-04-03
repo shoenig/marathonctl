@@ -30,8 +30,8 @@ func main() {
 	t := &Tool{
 		client: c,
 		actions: map[string]Action{
-			"list":   List{},
-			"upload": Upload{},
+			"list":   List{c},
+			"upload": Upload{c},
 		},
 	}
 

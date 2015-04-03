@@ -30,7 +30,8 @@ type Applications struct {
 
 func (a Applications) List() {
 	for _, app := range a.Apps {
-		fmt.Println("'"+app.ID+"'", app.Version, app.User)
+		// todo, pretty format columns
+		fmt.Println(app.ID, app.Version, app.User)
 	}
 }
 

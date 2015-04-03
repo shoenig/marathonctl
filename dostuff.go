@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/url"
 	"os"
 )
 
@@ -45,35 +43,6 @@ func (c *Client) ListVersions(id string) {
 	Check(e == nil, "could not read response", e)
 	v := string(b)
 	fmt.Println("versions = ", v)
-}
-
-func (c *Client) ListApps(id, version string) {
-	id = url.QueryEscape(id) // todo whys no work??
-
-	path := "/v2/apps"
-
-	if id != "" && version == "" {
-		path += "/" + id + "?embed=apps.tasks"
-	} else if id != "" && version != "" {
-		path += "/" + id + "/versions/" + version
-	}
-
-	fmt.Println("path", path)
-
-	request := c.GET(path)
-
-	response, e := c.Do(request)
-	Check(e == nil, "failed to get response", e)
-
-	defer response.Body.Close()
-
-	dec := json.NewDecoder(response.Body)
-	var applications Applications
-	e = dec.Decode(&applications)
-	Check(e == nil, "failed to unmarshal response", e)
-	fmt.Println(applications)
-
-	applications.List()
 }
 
 func (c *Client) CreateApp(jsonfile string) {
