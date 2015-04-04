@@ -23,7 +23,6 @@ func NewMarathon(host, login string) *Marathon {
 }
 
 type Tool struct {
-	client  *Client
 	actions map[string]Action
 }
 

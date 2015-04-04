@@ -1,18 +1,21 @@
-// Author Seth Hoenig
+// Author Seth Hoenig 2015
 
 // Usage
 //     marathonctl [-c config] [-h host] [-u user:password] <action ...>
 // Actions
-//     -- list --
-//     list                - lists all applications
-//     list [id]           - lists applications of id
-//     list [id] [version] - lists applications of id and version
+//    -- list --
+//      list                - lists all applications
+//      list [id]           - lists instances of id
+//      list [id] [version] - lists instances of id and version
 //
 //    -- versions --
-//    versions [id] - list all versions of application
+//      versions [id] - list all running versions of id
 //
-//     -- create --
-//     create [jsonfile] - deploy application defined in jsonfile
+//    -- create --
+//      create [jsonfile] - deploy application defined in jsonfile
+//
+//    -- destroy --
+//      destory [id] - destroy all instances of id
 
 // Command marathonctl gives you control over Marathon from the command line.
 package main
@@ -31,12 +34,12 @@ func main() {
 	m := NewMarathon(host, login)
 	c := NewClient(m)
 	t := &Tool{
-		client: c,
 		actions: map[string]Action{
 			"list":     List{c},
 			"create":   Create{c},
 			"versions": Versions{c},
 			"destroy":  Destroy{c},
+			"ping":     Ping{c},
 		},
 	}
 

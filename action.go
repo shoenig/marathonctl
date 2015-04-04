@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
+	"strings"
+	"time"
 )
 
 type Action interface {
@@ -118,4 +120,24 @@ func (d Destroy) Apply(args []string) {
 	// documentation says this is 204, wtf
 	Check(c == 200, "destroy app bad status", c)
 	fmt.Println("destroyed", args[0])
+}
+
+// ping
+type Ping struct {
+	client *Client
+}
+
+func (p Ping) Apply(args []string) {
+	request := p.client.GET("/ping")
+	start := time.Now()
+	response, e := p.client.Do(request)
+	elapsed := time.Now().Sub(start)
+	Check(e == nil, "ping failed", e)
+	c := response.StatusCode
+	Check(c == 200, "ping bad status", c)
+	defer response.Body.Close()
+	body, e := ioutil.ReadAll(response.Body)
+	Check(e == nil, "reading ping response failed", e)
+	pong := strings.TrimSpace(string(body))
+	fmt.Println(pong, elapsed)
 }
