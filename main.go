@@ -1,26 +1,7 @@
 // Author Seth Hoenig 2015
 
-// Usage
-//     marathonctl [-c config] [-h host] [-u user:password] <action ...>
-// Actions
-//    -- list --
-//      list                - lists all applications
-//      list [id]           - lists instances of id
-//      list [id] [version] - lists instances of id and version
-//
-//    -- versions --
-//      versions [id] - list all running versions of id
-//
-//    -- create --
-//      create [jsonfile] - deploy application defined in jsonfile
-//
-//    -- destroy --
-//      destory [id] - destroy all instances of id
-//
-//    -- ping --
-//      ping the Marathon master
-
-// Command marathonctl gives you control over Marathon from the command line.
+// Command marathonctl provides total control over Marathon
+// from the command line.
 package main
 
 import (
@@ -29,10 +10,38 @@ import (
 	"os"
 )
 
+const Usage = `marathonctl [-c conf] [-h host] [-u user:pass] <action>
+ Actions
+    list
+       list                - lists instances
+       list [id]           - lists instances of id
+       list [id] [version] - lists instances of id and version
+
+    versions
+       versions [id] - list all versions of instances of id
+
+    create
+       create [jsonfile] - deploy application defined in jsonfile
+
+    destroy
+       destory [id] - destroy all instances of id
+
+    ping
+       ping - ping any Marathon host
+
+    leader
+       leader - get the current Marathon leader
+
+    abdicate
+       abdicate - force the current leader to relinquish control
+`
+
 func main() {
 	host, login, e := Config()
 
-	Check(e == nil, "failed to get a Marathon configuration", e)
+	if e != nil {
+		usage()
+	}
 
 	m := NewMarathon(host, login)
 	c := NewClient(m)
@@ -43,6 +52,8 @@ func main() {
 			"versions": Versions{c},
 			"destroy":  Destroy{c},
 			"ping":     Ping{c},
+			"leader":   Leader{c},
+			"abdicate": Abdicate{c},
 		},
 	}
 

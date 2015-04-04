@@ -127,3 +127,11 @@ type Task struct {
 	StartedAt         string               `json:"startedAt"`
 	Version           string               `json:"version"`
 }
+
+type Which struct {
+	Leader string `json:"leader"`
+}
+
+type Message struct {
+	Message string `json:"message"`
+}

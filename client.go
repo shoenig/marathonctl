@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -22,15 +23,24 @@ func NewMarathon(host, login string) *Marathon {
 	}
 }
 
+func usage() {
+	fmt.Println(Usage)
+	os.Exit(1)
+}
+
 type Tool struct {
 	actions map[string]Action
 }
 
 func (t *Tool) Start(args []string) {
-	Check(len(args) > 0, "no action specified")
-	action, ok := t.actions[args[0]]
-	Check(ok, "unknown action", action)
-	action.Apply(args[1:])
+	if len(args) == 0 {
+		usage()
+	}
+	if action, ok := t.actions[args[0]]; !ok {
+		usage()
+	} else {
+		action.Apply(args[1:])
+	}
 }
 
 type Client struct {
@@ -68,7 +78,6 @@ func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
 
 func (c *Client) DELETE(path string) *http.Request {
 	url := c.marathon.Host + path
-	fmt.Println("url", url)
 	r, e := http.NewRequest("DELETE", url, nil)
 	Check(e == nil, "failed to create delete request", e)
 	r.Header.Set("Content-Type", "application/json")
