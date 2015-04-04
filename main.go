@@ -16,6 +16,9 @@
 //
 //    -- destroy --
 //      destory [id] - destroy all instances of id
+//
+//    -- ping --
+//      ping the Marathon master
 
 // Command marathonctl gives you control over Marathon from the command line.
 package main
