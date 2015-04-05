@@ -22,10 +22,10 @@ const Help = `marathonctl <flags...> [action] <args...>
        destroy [id]           - destroy and remove all instances of id
 
     task
-       list               - list all tasks
-       list [id]          - list tasks of app of id
-       kill [id]          - kill all tasks of app id
-       kill [id] [taskid] - kill task taskid of app id
+       list                  - list all tasks
+       list [id]             - list tasks of app of id
+       kill [id]             - kill all tasks of app id
+       kill [id] [taskid]    - kill task taskid of app id
 
     group
        group list              - list all groups
@@ -42,7 +42,7 @@ const Help = `marathonctl <flags...> [action] <args...>
     marathon
        leader   - get the current Marathon leader
        abdicate - force the current leader to relinquish control
-       ping     - ping Marathon host[s]
+       ping     - ping Marathon master host[s]
 
  Flags
   -c [config file]

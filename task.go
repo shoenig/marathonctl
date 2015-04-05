@@ -80,5 +80,40 @@ type TaskKill struct {
 }
 
 func (t TaskKill) Apply(args []string) {
+	switch len(args) {
+	case 1:
+		t.killAll(args[0])
+	case 2:
+		t.killOnly(args[0], args[1])
+	default:
+		Check(false, "task kill takes 1 or 2 arguments")
+	}
+}
 
+func (t TaskKill) killAll(id string) {
+	esc := url.QueryEscape(id)
+	path := "/v2/apps/" + esc + "/tasks"
+	request := t.client.DELETE(path)
+	response, e := t.client.Do(request)
+	Check(e == nil, "failed to get response", e)
+	defer response.Body.Close()
+
+	sc := response.StatusCode
+	Check(sc != 404, "unknown id")
+	Check(sc == 200, "failed with status code", sc)
+	fmt.Println("success")
+}
+
+func (t TaskKill) killOnly(id, taskid string) {
+	escID := url.QueryEscape(id)
+	escTaskID := url.QueryEscape(taskid)
+	path := "/v2/apps/" + escID + "/tasks/" + escTaskID
+	request := t.client.DELETE(path)
+	response, e := t.client.Do(request)
+	Check(e == nil, "failed to get response", e)
+	defer response.Body.Close()
+	sc := response.StatusCode
+	Check(sc != 404, "unknown appid or taskid")
+	Check(sc == 200, "failed with status code", sc)
+	fmt.Println("success")
 }
