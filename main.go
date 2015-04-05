@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-const Usage = `marathonctl [-c conf] [-h host] [-u user:pass] <action>
+const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] <action>
  Actions
     list
        list                - lists instances
@@ -26,6 +26,13 @@ const Usage = `marathonctl [-c conf] [-h host] [-u user:pass] <action>
     destroy
        destory [id] - destroy all instances of id
 
+    group
+       group list
+       group list [groupid]
+       group create [jsonfile]
+       group update [jsonfile]
+       group destroy [groupid]
+
     ping
        ping - ping any Marathon host
 
@@ -40,17 +47,23 @@ func main() {
 	host, login, e := Config()
 
 	if e != nil {
-		usage()
+		Usage()
 	}
 
 	m := NewMarathon(host, login)
 	c := NewClient(m)
+	group := &Group{
+		actions: map[string]Action{
+			"list": Grouplist{c},
+		},
+	}
 	t := &Tool{
 		actions: map[string]Action{
 			"list":     List{c},
 			"create":   Create{c},
 			"versions": Versions{c},
 			"destroy":  Destroy{c},
+			"group":    group,
 			"ping":     Ping{c},
 			"leader":   Leader{c},
 			"abdicate": Abdicate{c},

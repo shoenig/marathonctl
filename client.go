@@ -23,8 +23,8 @@ func NewMarathon(host, login string) *Marathon {
 	}
 }
 
-func usage() {
-	fmt.Println(Usage)
+func Usage() {
+	fmt.Println(Howto)
 	os.Exit(1)
 }
 
@@ -34,10 +34,10 @@ type Tool struct {
 
 func (t *Tool) Start(args []string) {
 	if len(args) == 0 {
-		usage()
+		Usage()
 	}
 	if action, ok := t.actions[args[0]]; !ok {
-		usage()
+		Usage()
 	} else {
 		action.Apply(args[1:])
 	}

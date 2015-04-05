@@ -70,14 +70,17 @@ func (l List) list(id, version string) {
 
 	defer response.Body.Close()
 
-	dec := json.NewDecoder(response.Body)
-	var applications Applications
-	e = dec.Decode(&applications)
-	Check(e == nil, "failed to unmarshal response", e)
-	// fmt.Println(applications)
+	body, e := ioutil.ReadAll(response.Body)
+	Check(e == nil, "failed to read body", e)
+	fmt.Println(string(body))
+	// dec := json.NewDecoder(response.Body)
+	// var applications Applications
+	// e = dec.Decode(&applications)
+	// Check(e == nil, "failed to unmarshal response", e)
+	// // fmt.Println(applications)
 
-	text := applications.String()
-	fmt.Println(Columnize(text))
+	// text := applications.String()
+	// fmt.Println(Columnize(text))
 }
 
 // create
@@ -180,4 +183,30 @@ func (a Abdicate) Apply(args []string) {
 	e = dec.Decode(&mess)
 	Check(e == nil, "failed to decode response", e)
 	fmt.Println(mess.Message)
+}
+
+// groups
+type Group struct {
+	actions map[string]Action
+}
+
+func (g Group) Apply(args []string) {
+	Check(len(args) > 0, "must specify group action")
+	if action, ok := g.actions[args[0]]; !ok {
+		Usage()
+	} else {
+		action.Apply(args[1:])
+	}
+}
+
+type Grouplist struct {
+	client *Client
+}
+
+func (g Grouplist) Apply(args []string) {
+	if len(args) == 0 {
+		fmt.Println("list all the groups")
+	} else {
+		fmt.Println("list groups of id", args[0])
+	}
 }
