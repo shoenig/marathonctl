@@ -173,7 +173,19 @@ type AppRestart struct {
 }
 
 func (a AppRestart) Apply(args []string) {
-	Check(false, "app restart todo")
+	Check(len(args) == 1, "specify 1 app id to restart")
+	id := url.QueryEscape(args[0])
+	request := a.client.POST("/v2/apps/"+id+"/restart?force=true", nil)
+	response, e := a.client.Do(request)
+	Check(e == nil, "failed to get response", e)
+	defer response.Body.Close()
+	dec := json.NewDecoder(response.Body)
+	var update Update
+	e = dec.Decode(&update)
+	Check(e == nil, "failed to decode response", e)
+	title := "DEPLOYID VERSION\n"
+	text := title + update.DeploymentID + " " + update.Version
+	fmt.Println(Columnize(text))
 }
 
 type AppDestroy struct {
