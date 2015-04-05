@@ -10,17 +10,17 @@ import (
 	"os"
 )
 
-const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] [-f format] <action>
+const Help = `marathonctl [-c conf] [-h host] [-u user:pass] [-f format] <action>
  Actions
     app
-       list                - lists apps
-       list [id]           - lists apps of id
-       versions [id]       - list all versions of apps of id
-       show [id] [version] - show config of app of id and version
-       create [jsonfile]   - deploy application defined in jsonfile
-       update [jsonfile]   - update application as defined in jsonfile
-       restart [id]        - restart app of id
-       destroy [id]        - destroy and remove all instances of id
+       list                   - lists apps
+       list [id]              - lists apps of id
+       versions [id]          - list all versions of apps of id
+       show [id] [version]    - show config of app of id and version
+       create [jsonfile]      - deploy application defined in jsonfile
+       update [id] [jsonfile] - update application id as defined in jsonfile
+       restart [id]           - restart app of id
+       destroy [id]           - destroy and remove all instances of id
 
     task
        list               - list all tasks
@@ -50,6 +50,11 @@ const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] [-f format] <actio
     json   (json on one line)
     jsonpp (json pretty printed)
 `
+
+func Usage() {
+	fmt.Fprintln(os.Stderr, Help)
+	os.Exit(1)
+}
 
 func main() {
 	host, login, e := Config()

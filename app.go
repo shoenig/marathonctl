@@ -36,16 +36,14 @@ func (a AppList) listAll() {
 	var applications Applications
 	e = dec.Decode(&applications)
 	Check(e == nil, "failed to unmarshal response", e)
-	title := "APP VERSION\n"
+	title := "APP VERSION USER\n"
 	text := title + applications.String()
 	fmt.Println(Columnize(text))
 }
 
 func (a AppList) listById(id string) {
 	esc := url.QueryEscape(id)
-
 	path := "/v2/apps/" + esc + "?embed=apps.tasks"
-
 	request := a.client.GET(path)
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
@@ -133,6 +131,7 @@ func (a AppCreate) Apply(args []string) {
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
+	Check(response.StatusCode != 409, "app already exists")
 
 	dec := json.NewDecoder(response.Body)
 	var application Application
@@ -146,7 +145,27 @@ type AppUpdate struct {
 }
 
 func (a AppUpdate) Apply(args []string) {
-	Check(false, "app apply todo")
+	Check(len(args) == 2, "must specify id and jsonfile")
+	id := url.QueryEscape(args[0])
+	f, e := os.Open(args[1])
+	Check(e == nil, "failed to open jsonfile", e)
+	defer f.Close()
+
+	request := a.client.PUT("/v2/apps/"+id+"?force=true", f)
+	response, e := a.client.Do(request)
+	Check(e == nil, "failed to get response", e)
+	defer response.Body.Close()
+
+	sc := response.StatusCode
+	Check(sc == 200, "bad status code", sc)
+
+	dec := json.NewDecoder(response.Body)
+	var update Update
+	e = dec.Decode(&update)
+	Check(e == nil, "failed to decode response", e)
+	title := "DEPLOYID VERSION\n"
+	text := title + update.DeploymentID + " " + update.Version
+	fmt.Println(Columnize(text))
 }
 
 type AppRestart struct {

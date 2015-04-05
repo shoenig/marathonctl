@@ -74,6 +74,11 @@ type Versions struct {
 	Versions []string
 }
 
+type Update struct {
+	DeploymentID string `json:"deploymentId"`
+	Version      string `json:"version"`
+}
+
 type Container struct {
 	Type    string    `json:"type,omitempty"`
 	Docker  *Docker   `json:"docker,omitempty"`

@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -25,11 +23,6 @@ func NewLogin(host, login string) *Login {
 		User: toks[0],
 		Pass: toks[1],
 	}
-}
-
-func Usage() {
-	fmt.Fprintln(os.Stderr, Howto)
-	os.Exit(1)
 }
 
 type Tool struct {
@@ -66,7 +59,7 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 func (c *Client) GET(path string) *http.Request {
 	url := c.login.Host + path
 	r, e := http.NewRequest("GET", url, nil)
-	Check(e == nil, "failed to crete get request", e)
+	Check(e == nil, "failed to crete GET request", e)
 	r.SetBasicAuth(c.login.User, c.login.Pass)
 	return r
 }
@@ -74,7 +67,7 @@ func (c *Client) GET(path string) *http.Request {
 func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
 	url := c.login.Host + path
 	r, e := http.NewRequest("POST", url, body)
-	Check(e == nil, "failed to create post request", e)
+	Check(e == nil, "failed to create POST request", e)
 	r.Header.Set("Content-Type", "application/json")
 	r.SetBasicAuth(c.login.User, c.login.Pass)
 	return r
@@ -83,7 +76,16 @@ func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
 func (c *Client) DELETE(path string) *http.Request {
 	url := c.login.Host + path
 	r, e := http.NewRequest("DELETE", url, nil)
-	Check(e == nil, "failed to create delete request", e)
+	Check(e == nil, "failed to create DELETE request", e)
+	r.Header.Set("Content-Type", "application/json")
+	r.SetBasicAuth(c.login.User, c.login.Pass)
+	return r
+}
+
+func (c *Client) PUT(path string, body io.ReadCloser) *http.Request {
+	url := c.login.Host + path
+	r, e := http.NewRequest("PUT", url, body)
+	Check(e == nil, "failed to create PUT request", e)
 	r.Header.Set("Content-Type", "application/json")
 	r.SetBasicAuth(c.login.User, c.login.Pass)
 	return r
