@@ -1,0 +1,13 @@
+{
+    "id": "/hoenig/ping-yahoo",
+    "cmd": "ping yahoo.com",
+    "cpus": 0.1,
+    "mem": 1.0,
+    "env": {
+        "SID": "1",
+        "SSID": "2"
+    },
+    "executor": "",
+    "instances": 3,
+    "user": "nobody"
+}
