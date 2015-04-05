@@ -29,17 +29,17 @@ func Usage() {
 }
 
 type Tool struct {
-	actions map[string]Action
+	selections map[string]Selector
 }
 
 func (t *Tool) Start(args []string) {
 	if len(args) == 0 {
 		Usage()
 	}
-	if action, ok := t.actions[args[0]]; !ok {
+	if selection, ok := t.selections[args[0]]; !ok {
 		Usage()
 	} else {
-		action.Apply(args[1:])
+		selection.Select(args[1:])
 	}
 }
 

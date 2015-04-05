@@ -56,14 +56,14 @@ func main() {
 
 	l := NewLogin(host, login)
 	c := NewClient(l)
-	marathon := &Marathon{
+	marathon := &Category{
 		actions: map[string]Action{
 			"leader":   Leader{c},
 			"abdicate": Abdicate{c},
 			"ping":     Ping{c},
 		},
 	}
-	app := &App{
+	app := &Category{
 		actions: map[string]Action{
 			"list":     List{c},
 			"versions": Versions{c},
@@ -71,13 +71,13 @@ func main() {
 			"destroy":  Destroy{c},
 		},
 	}
-	group := &Group{
+	group := &Category{
 		actions: map[string]Action{
 			"list": Grouplist{c},
 		},
 	}
 	t := &Tool{
-		actions: map[string]Action{
+		selections: map[string]Selector{
 			"app":      app,
 			"group":    group,
 			"marathon": marathon,

@@ -14,19 +14,6 @@ type Action interface {
 	Apply(args []string)
 }
 
-type App struct {
-	actions map[string]Action
-}
-
-func (a App) Apply(args []string) {
-	Check(len(args) > 0, "must specify app action")
-	if action, ok := a.actions[args[0]]; !ok {
-		Usage()
-	} else {
-		action.Apply(args[1:])
-	}
-}
-
 // versions
 type Versions struct {
 	client *Client
@@ -198,20 +185,6 @@ func (a Abdicate) Apply(args []string) {
 	fmt.Println(mess.Message)
 }
 
-// groups
-type Group struct {
-	actions map[string]Action
-}
-
-func (g Group) Apply(args []string) {
-	Check(len(args) > 0, "must specify group action")
-	if action, ok := g.actions[args[0]]; !ok {
-		Usage()
-	} else {
-		action.Apply(args[1:])
-	}
-}
-
 type Grouplist struct {
 	client *Client
 }
@@ -221,19 +194,5 @@ func (g Grouplist) Apply(args []string) {
 		fmt.Println("list all the groups")
 	} else {
 		fmt.Println("list groups of id", args[0])
-	}
-}
-
-// marathon
-type Marathon struct {
-	actions map[string]Action
-}
-
-func (m Marathon) Apply(args []string) {
-	Check(len(args) > 0, "must specify marathon action")
-	if action, ok := m.actions[args[0]]; !ok {
-		Usage()
-	} else {
-		action.Apply(args[1:])
 	}
 }
