@@ -3,9 +3,9 @@ package main
 // app [actions]
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"os"
 )
@@ -20,8 +20,6 @@ func (a AppList) Apply(args []string) {
 		a.listAll()
 	case 1:
 		a.listById(args[0])
-	// case 2:
-	// 	al.listByIdVersion(args[0], args[1])
 	default:
 		Check(false, "too many arguments")
 	}
@@ -51,10 +49,23 @@ func (a AppList) listById(id string) {
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
-	body, e := ioutil.ReadAll(response.Body)
-	Check(e == nil, "failed to read body", e)
-	fmt.Println(string(body))
+	dec := json.NewDecoder(response.Body)
+	var appbyid AppById
+	e = dec.Decode(&appbyid)
+	Check(e == nil, "failed to unmarshal response", e)
 
+	var b bytes.Buffer
+	for _, task := range appbyid.App.Tasks {
+		b.WriteString(task.ID)
+		b.WriteString(" ")
+		b.WriteString(task.Host)
+		b.WriteString(" ")
+		b.WriteString(task.Version)
+		// ports?
+	}
+	title := "ID HOST VERSION\n"
+	text := title + b.String()
+	fmt.Println(Columnize(text))
 }
 
 type AppVersions struct {
@@ -68,11 +79,13 @@ func (a AppVersions) Apply(args []string) {
 	request := a.client.GET(path)
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to list verions", e)
-	defer response.Body.Close()
-	b, e := ioutil.ReadAll(response.Body)
-	Check(e == nil, "could not read response", e)
-	ver := string(b)
-	fmt.Println("versions = ", ver)
+	dec := json.NewDecoder(response.Body)
+	var versions Versions
+	e = dec.Decode(&versions)
+	Check(e == nil, "failed to unmarshal response", e)
+	for _, version := range versions.Versions {
+		fmt.Println(version)
+	}
 }
 
 type AppShow struct {

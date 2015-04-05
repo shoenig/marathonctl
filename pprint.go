@@ -6,13 +6,15 @@ import (
 	"strings"
 )
 
+const maxCols = 100
+
 // Columnize will pretty print columns of information
 // rows are by newline
 // columns are by whitespace
 func Columnize(text string) string {
 	scanner := bufio.NewScanner(strings.NewReader(text))
 	all := [][]string{}
-	longests := [10]int{} // index=col, val=maxlength
+	longests := [maxCols]int{} // index=col, val=maxlength
 
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
@@ -29,7 +31,7 @@ func Columnize(text string) string {
 	return strings.TrimSpace(fmtFields(longests, all))
 }
 
-func fmtFields(longests [10]int, matrix [][]string) string {
+func fmtFields(longests [maxCols]int, matrix [][]string) string {
 	var b bytes.Buffer
 	for _, fields := range matrix {
 		for col, field := range fields {

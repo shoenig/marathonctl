@@ -22,6 +22,10 @@ func Load(filename string) (*Application, error) {
 	return &app, nil
 }
 
+type AppById struct {
+	App Application `json:"app"`
+}
+
 type Applications struct {
 	Apps []Application `json:"apps"`
 }
@@ -64,6 +68,10 @@ type Application struct {
 	UpgradeStrategy *UpgradeStrategy    `json:"upgradeStrategy,omitempty"`
 	Uris            []string            `json:"uris,omitempty"`
 	Version         string              `json:"version,omitempty"`
+}
+
+type Versions struct {
+	Versions []string
 }
 
 type Container struct {
