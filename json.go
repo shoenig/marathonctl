@@ -43,6 +43,10 @@ func (a Applications) String() string {
 	return b.String()
 }
 
+type Tasks struct {
+	Tasks []*Task `json:"tasks"`
+}
+
 type Application struct {
 	ID              string              `json:"id"`
 	Cmd             string              `json:"cmd,omitempty"`

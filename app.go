@@ -1,6 +1,6 @@
 package main
 
-// app [actions]
+// All actions under the app command
 
 import (
 	"bytes"
@@ -16,17 +16,6 @@ type AppList struct {
 }
 
 func (a AppList) Apply(args []string) {
-	switch len(args) {
-	case 0:
-		a.listAll()
-	case 1:
-		a.listById(args[0])
-	default:
-		Check(false, "too many arguments")
-	}
-}
-
-func (a AppList) listAll() {
 	path := "/v2/apps"
 	request := a.client.GET(path)
 	response, e := a.client.Do(request)
@@ -38,32 +27,6 @@ func (a AppList) listAll() {
 	Check(e == nil, "failed to unmarshal response", e)
 	title := "APP VERSION USER\n"
 	text := title + applications.String()
-	fmt.Println(Columnize(text))
-}
-
-func (a AppList) listById(id string) {
-	esc := url.QueryEscape(id)
-	path := "/v2/apps/" + esc + "?embed=apps.tasks"
-	request := a.client.GET(path)
-	response, e := a.client.Do(request)
-	Check(e == nil, "failed to get response", e)
-	defer response.Body.Close()
-	dec := json.NewDecoder(response.Body)
-	var appbyid AppById
-	e = dec.Decode(&appbyid)
-	Check(e == nil, "failed to unmarshal response", e)
-
-	var b bytes.Buffer
-	for _, task := range appbyid.App.Tasks {
-		b.WriteString(task.ID)
-		b.WriteString(" ")
-		b.WriteString(task.Host)
-		b.WriteString(" ")
-		b.WriteString(task.Version)
-		// ports?
-	}
-	title := "ID HOST VERSION\n"
-	text := title + b.String()
 	fmt.Println(Columnize(text))
 }
 

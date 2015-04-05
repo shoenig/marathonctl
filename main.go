@@ -10,11 +10,10 @@ import (
 	"os"
 )
 
-const Help = `marathonctl [-c conf] [-h host] [-u user:pass] [-f format] <action>
+const Help = `marathonctl <flags...> [action] <args...>
  Actions
     app
-       list                   - lists apps
-       list [id]              - lists apps of id
+       list                   - list all apps
        versions [id]          - list all versions of apps of id
        show [id] [version]    - show config of app of id and version
        create [jsonfile]      - deploy application defined in jsonfile
@@ -45,10 +44,14 @@ const Help = `marathonctl [-c conf] [-h host] [-u user:pass] [-f format] <action
        abdicate - force the current leader to relinquish control
        ping     - ping Marathon host[s]
 
- Formats (-f)
-    human  (simplified, default)
-    json   (json on one line)
-    jsonpp (json pretty printed)
+ Flags
+  -c [config file]
+  -h [host]
+  -u [user:password] (separated by colon)
+  -f [format]
+       human  (simplified, default)
+       json   (json on one line)
+       jsonpp (json pretty printed)
 `
 
 func Usage() {
