@@ -10,47 +10,46 @@ import (
 	"os"
 )
 
-const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] [-s style] <action>
+const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] [-f format] <action>
  Actions
     app
        list                - lists apps
        list [id]           - lists apps of id
        list [id] [version] - lists apps of id and version
-       versions [id] - list all versions of apps of id
+       versions [id]       - list all versions of apps of id
        show [id] [version] - show config of app of id and version
-       create [jsonfile] - deploy application defined in jsonfile
-       update [jsonfile] - update application as defined in jsonfile
-       restart [id] - restart app of id
-       destroy [id] - destroy and remove all instances of id
+       create [jsonfile]   - deploy application defined in jsonfile
+       update [jsonfile]   - update application as defined in jsonfile
+       restart [id]        - restart app of id
+       destroy [id]        - destroy and remove all instances of id
 
     task
-       list - list all tasks
-       list [id] - list tasks of app of id
-       kill [id] - kill all tasks of app id
+       list               - list all tasks
+       list [id]          - list tasks of app of id
+       kill [id]          - kill all tasks of app id
        kill [id] [taskid] - kill task taskid of app id
 
     group
-       group list
-       group list [groupid]
-       group create [jsonfile]
-       group update [jsonfile]
-       group destroy [groupid]
+       group list              - list all groups
+       group list [groupid]    - list apps in group of groupid
+       group create [jsonfile] - create a group defined in jsonfile
+       group update [jsonfile] - update group defined as defined in jsonfile
+       group destroy [groupid] - destroy group of groupid
 
     deploy
-       list - list all active deploys
-       queue - list all queued deployes
+       list               - list all active deploys
+       queue              - list all queued deployes
        destroy [deployid] - cancel deployment of [deployid]
 
     marathon
-       leader - get the current Marathon leader
+       leader   - get the current Marathon leader
        abdicate - force the current leader to relinquish control
-       ping - ping Marathon host
+       ping     - ping Marathon host[s]
 
- Styles (-s)
+ Formats (-f)
     human  (simplified, default)
     json   (json on one line)
     jsonpp (json pretty printed)
-
 `
 
 func main() {

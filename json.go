@@ -22,8 +22,6 @@ func Load(filename string) (*Application, error) {
 	return &app, nil
 }
 
-// structs mostly copied from https://github.com/gambol99/go-marathon
-
 type Applications struct {
 	Apps []Application `json:"apps"`
 }

@@ -15,48 +15,46 @@ type AppList struct {
 }
 
 func (a AppList) Apply(args []string) {
-	var id string
-	var version string
-
-	if len(args) > 0 {
-		id = args[0]
-	} else if len(args) > 1 {
-		version = args[1]
+	switch len(args) {
+	case 0:
+		a.listAll()
+	case 1:
+		a.listById(args[0])
+	// case 2:
+	// 	al.listByIdVersion(args[0], args[1])
+	default:
+		Check(false, "too many arguments")
 	}
-	a.list(id, version)
 }
 
-func (a AppList) list(id, version string) {
-	id = url.QueryEscape(id)
-
+func (a AppList) listAll() {
 	path := "/v2/apps"
-
-	if id != "" && version == "" {
-		path += "/" + id + "?embed=apps.tasks" // why no work??
-	} else if id != "" && version != "" {
-		path += "/" + id + "/versions/" + version
-	}
-
-	fmt.Println("path", path)
-
 	request := a.client.GET(path)
-
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
-
 	defer response.Body.Close()
+	dec := json.NewDecoder(response.Body)
+	var applications Applications
+	e = dec.Decode(&applications)
+	Check(e == nil, "failed to unmarshal response", e)
+	title := "APP VERSION\n"
+	text := title + applications.String()
+	fmt.Println(Columnize(text))
+}
 
+func (a AppList) listById(id string) {
+	esc := url.QueryEscape(id)
+
+	path := "/v2/apps/" + esc + "?embed=apps.tasks"
+
+	request := a.client.GET(path)
+	response, e := a.client.Do(request)
+	Check(e == nil, "failed to get response", e)
+	defer response.Body.Close()
 	body, e := ioutil.ReadAll(response.Body)
 	Check(e == nil, "failed to read body", e)
 	fmt.Println(string(body))
-	// dec := json.NewDecoder(response.Body)
-	// var applications Applications
-	// e = dec.Decode(&applications)
-	// Check(e == nil, "failed to unmarshal response", e)
-	// // fmt.Println(applications)
 
-	// text := applications.String()
-	// fmt.Println(Columnize(text))
 }
 
 type AppVersions struct {
