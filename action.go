@@ -125,7 +125,7 @@ func (d Destroy) Apply(args []string) {
 	fmt.Println("destroyed", args[0])
 }
 
-// ping
+// ping (todo ping all hosts)
 type Ping struct {
 	client *Client
 }

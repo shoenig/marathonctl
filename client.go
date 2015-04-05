@@ -9,7 +9,7 @@ import (
 )
 
 type Login struct {
-	Host string // todo hosts
+	Host string // todo multi hosts
 	User string
 	Pass string
 }
@@ -24,7 +24,7 @@ func NewLogin(host, login string) *Login {
 }
 
 func Usage() {
-	fmt.Println(Howto)
+	fmt.Fprintln(os.Stderr, Howto)
 	os.Exit(1)
 }
 
