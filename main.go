@@ -15,7 +15,6 @@ const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] [-f format] <actio
     app
        list                - lists apps
        list [id]           - lists apps of id
-       list [id] [version] - lists apps of id and version
        versions [id]       - list all versions of apps of id
        show [id] [version] - show config of app of id and version
        create [jsonfile]   - deploy application defined in jsonfile

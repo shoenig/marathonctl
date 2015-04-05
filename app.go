@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strconv"
 )
 
 type AppList struct {
@@ -92,8 +93,29 @@ type AppShow struct {
 	client *Client
 }
 
-func (s AppShow) Apply(args []string) {
-	Check(false, "app show todo")
+func (a AppShow) Apply(args []string) {
+	Check(len(args) == 2, "must provide id and version")
+	id := url.QueryEscape(args[0])
+	version := url.QueryEscape(args[1])
+	path := "/v2/apps/" + id + "/versions/" + version
+	request := a.client.GET(path)
+	response, e := a.client.Do(request)
+	Check(e == nil, "failed to show app", e)
+	dec := json.NewDecoder(response.Body)
+	var application Application
+	e = dec.Decode(&application)
+	Check(e == nil, "failed to unmarshal response", e)
+	title := "INSTANCES MEM CMD\n"
+	var b bytes.Buffer
+	b.WriteString(strconv.Itoa(application.Instances))
+	b.WriteString(" ")
+	mem := fmt.Sprintf("%.2f", application.Mem)
+	b.WriteString(mem)
+	b.WriteString(" ")
+	b.WriteString(application.Cmd)
+
+	text := title + b.String()
+	fmt.Println(Columnize(text))
 }
 
 type AppCreate struct {
@@ -117,7 +139,6 @@ func (a AppCreate) Apply(args []string) {
 	e = dec.Decode(&application)
 	Check(e == nil, "failed to decode response", e)
 	fmt.Println(application.ID, application.Version)
-
 }
 
 type AppUpdate struct {
