@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+type Action interface {
+	Apply(args []string)
+}
+
 type Login struct {
 	Host string // todo multi hosts
 	User string

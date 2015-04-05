@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] <action>
+const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] [-s style] <action>
  Actions
     app
        list                - lists apps
@@ -45,6 +45,12 @@ const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] <action>
        leader - get the current Marathon leader
        abdicate - force the current leader to relinquish control
        ping - ping Marathon host
+
+ Styles (-s)
+    human  (simplified, default)
+    json   (json on one line)
+    jsonpp (json pretty printed)
+
 `
 
 func main() {
@@ -56,6 +62,37 @@ func main() {
 
 	l := NewLogin(host, login)
 	c := NewClient(l)
+	app := &Category{
+		actions: map[string]Action{
+			"list":     AppList{c},
+			"versions": AppVersions{c},
+			"show":     AppShow{c},
+			"create":   AppCreate{c},
+			"update":   AppUpdate{c},
+			"restart":  AppRestart{c},
+			"destroy":  AppDestroy{c},
+		},
+	}
+	task := &Category{
+		actions: map[string]Action{
+			"list": TaskList{c},
+			"kill": TaskKill{c},
+		},
+	}
+	group := &Category{
+		actions: map[string]Action{
+			"list":    GroupList{c},
+			"create":  GroupCreate{c},
+			"destroy": GroupDestroy{c},
+		},
+	}
+	deploy := &Category{
+		actions: map[string]Action{
+			"list":    DeployList{c},
+			"queue":   DeployQueue{c},
+			"destroy": DeployDestroy{c},
+		},
+	}
 	marathon := &Category{
 		actions: map[string]Action{
 			"leader":   Leader{c},
@@ -63,23 +100,12 @@ func main() {
 			"ping":     Ping{c},
 		},
 	}
-	app := &Category{
-		actions: map[string]Action{
-			"list":     List{c},
-			"versions": Versions{c},
-			"create":   Create{c},
-			"destroy":  Destroy{c},
-		},
-	}
-	group := &Category{
-		actions: map[string]Action{
-			"list": Grouplist{c},
-		},
-	}
 	t := &Tool{
 		selections: map[string]Selector{
 			"app":      app,
+			"task":     task,
 			"group":    group,
+			"deploy":   deploy,
 			"marathon": marathon,
 		},
 	}
