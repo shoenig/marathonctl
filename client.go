@@ -8,15 +8,15 @@ import (
 	"strings"
 )
 
-type Marathon struct {
+type Login struct {
 	Host string // todo hosts
 	User string
 	Pass string
 }
 
-func NewMarathon(host, login string) *Marathon {
+func NewLogin(host, login string) *Login {
 	toks := strings.SplitN(login, ":", 2)
-	return &Marathon{
+	return &Login{
 		Host: host,
 		User: toks[0],
 		Pass: toks[1],
@@ -44,14 +44,14 @@ func (t *Tool) Start(args []string) {
 }
 
 type Client struct {
-	client   http.Client
-	marathon *Marathon
+	client http.Client
+	login  *Login
 }
 
-func NewClient(m *Marathon) *Client {
+func NewClient(login *Login) *Client {
 	return &Client{
-		client:   http.Client{},
-		marathon: m,
+		client: http.Client{},
+		login:  login,
 	}
 }
 
@@ -60,27 +60,27 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 }
 
 func (c *Client) GET(path string) *http.Request {
-	url := c.marathon.Host + path
+	url := c.login.Host + path
 	r, e := http.NewRequest("GET", url, nil)
 	Check(e == nil, "failed to crete get request", e)
-	r.SetBasicAuth(c.marathon.User, c.marathon.Pass)
+	r.SetBasicAuth(c.login.User, c.login.Pass)
 	return r
 }
 
 func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
-	url := c.marathon.Host + path
+	url := c.login.Host + path
 	r, e := http.NewRequest("POST", url, body)
 	Check(e == nil, "failed to create post request", e)
 	r.Header.Set("Content-Type", "application/json")
-	r.SetBasicAuth(c.marathon.User, c.marathon.Pass)
+	r.SetBasicAuth(c.login.User, c.login.Pass)
 	return r
 }
 
 func (c *Client) DELETE(path string) *http.Request {
-	url := c.marathon.Host + path
+	url := c.login.Host + path
 	r, e := http.NewRequest("DELETE", url, nil)
 	Check(e == nil, "failed to create delete request", e)
 	r.Header.Set("Content-Type", "application/json")
-	r.SetBasicAuth(c.marathon.User, c.marathon.Pass)
+	r.SetBasicAuth(c.login.User, c.login.Pass)
 	return r
 }

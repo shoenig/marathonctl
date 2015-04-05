@@ -12,19 +12,22 @@ import (
 
 const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] <action>
  Actions
-    list
-       list                - lists instances
-       list [id]           - lists instances of id
-       list [id] [version] - lists instances of id and version
-
-    versions
-       versions [id] - list all versions of instances of id
-
-    create
+    app
+       list                - lists apps
+       list [id]           - lists apps of id
+       list [id] [version] - lists apps of id and version
+       versions [id] - list all versions of apps of id
+       show [id] [version] - show config of app of id and version
        create [jsonfile] - deploy application defined in jsonfile
+       update [jsonfile] - update application as defined in jsonfile
+       restart [id] - restart app of id
+       destroy [id] - destroy and remove all instances of id
 
-    destroy
-       destory [id] - destroy all instances of id
+    task
+       list - list all tasks
+       list [id] - list tasks of app of id
+       kill [id] - kill all tasks of app id
+       kill [id] [taskid] - kill task taskid of app id
 
     group
        group list
@@ -33,14 +36,15 @@ const Howto = `marathonctl [-c conf] [-h host] [-u user:pass] <action>
        group update [jsonfile]
        group destroy [groupid]
 
-    ping
-       ping - ping any Marathon host
+    deploy
+       list - list all active deploys
+       queue - list all queued deployes
+       destroy [deployid] - cancel deployment of [deployid]
 
-    leader
+    marathon
        leader - get the current Marathon leader
-
-    abdicate
        abdicate - force the current leader to relinquish control
+       ping - ping Marathon host
 `
 
 func main() {
@@ -50,8 +54,23 @@ func main() {
 		Usage()
 	}
 
-	m := NewMarathon(host, login)
-	c := NewClient(m)
+	l := NewLogin(host, login)
+	c := NewClient(l)
+	marathon := &Marathon{
+		actions: map[string]Action{
+			"leader":   Leader{c},
+			"abdicate": Abdicate{c},
+			"ping":     Ping{c},
+		},
+	}
+	app := &App{
+		actions: map[string]Action{
+			"list":     List{c},
+			"versions": Versions{c},
+			"create":   Create{c},
+			"destroy":  Destroy{c},
+		},
+	}
 	group := &Group{
 		actions: map[string]Action{
 			"list": Grouplist{c},
@@ -59,14 +78,9 @@ func main() {
 	}
 	t := &Tool{
 		actions: map[string]Action{
-			"list":     List{c},
-			"create":   Create{c},
-			"versions": Versions{c},
-			"destroy":  Destroy{c},
+			"app":      app,
 			"group":    group,
-			"ping":     Ping{c},
-			"leader":   Leader{c},
-			"abdicate": Abdicate{c},
+			"marathon": marathon,
 		},
 	}
 
