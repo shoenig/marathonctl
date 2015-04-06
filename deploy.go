@@ -45,14 +45,6 @@ func (d DeployList) Apply(args []string) {
 	fmt.Println(Columnize(text))
 }
 
-type DeployQueue struct {
-	client *Client
-}
-
-func (d DeployQueue) Apply(args []string) {
-	Check(false, "todo: deploy queue")
-}
-
 type DeployCancel struct {
 	client *Client
 }

@@ -81,8 +81,9 @@ func main() {
 	}
 	task := &Category{
 		actions: map[string]Action{
-			"list": TaskList{c},
-			"kill": TaskKill{c},
+			"list":  TaskList{c},
+			"kill":  TaskKill{c},
+			"queue": TaskQueue{c},
 		},
 	}
 	group := &Category{
@@ -95,7 +96,6 @@ func main() {
 	deploy := &Category{
 		actions: map[string]Action{
 			"list":   DeployList{c},
-			"queue":  DeployQueue{c},
 			"cancel": DeployCancel{c},
 		},
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strconv"
 )
 
 // All actions under the task command
@@ -116,4 +117,32 @@ func (t TaskKill) killOnly(id, taskid string) {
 	Check(sc != 404, "unknown appid or taskid")
 	Check(sc == 200, "failed with status code", sc)
 	fmt.Println("success")
+}
+
+type TaskQueue struct {
+	client *Client
+}
+
+func (t TaskQueue) Apply(args []string) {
+	Check(len(args) == 0, "no arguments")
+	request := t.client.GET("/v2/queue")
+	response, e := t.client.Do(request)
+	Check(e == nil, "failed to get response", e)
+	defer response.Body.Close()
+	dec := json.NewDecoder(response.Body)
+	var queue Queue
+	e = dec.Decode(&queue)
+	Check(e == nil, "failed to decode response", e)
+	title := "APP VERSION OVERDUE\n"
+	var b bytes.Buffer
+	for _, queuedTask := range queue.Queue {
+		b.WriteString(queuedTask.App.ID)
+		b.WriteString(" ")
+		b.WriteString(queuedTask.App.Version)
+		b.WriteString(" ")
+		b.WriteString(strconv.FormatBool(queuedTask.Delay["overdue"]))
+		b.WriteString("\n")
+	}
+	text := title + b.String()
+	fmt.Println(Columnize(text))
 }

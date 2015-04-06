@@ -129,6 +129,15 @@ type Task struct {
 	Version           string               `json:"version"`
 }
 
+type QueuedTask struct {
+	App   *Application    `json:"app"`
+	Delay map[string]bool `json:"delay"`
+}
+
+type Queue struct {
+	Queue []QueuedTask `json:"queue"`
+}
+
 type Which struct {
 	Leader string `json:"leader"`
 }
