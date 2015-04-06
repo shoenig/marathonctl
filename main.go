@@ -28,11 +28,11 @@ const Help = `marathonctl <flags...> [action] <args...>
        queue              - list all queued tasks
 
     group
-       group list              - list all groups in /
-       group list [groupid]    - list all groups in groupid
-       group create [jsonfile] - create a group defined in jsonfile
-       group update [jsonfile] - update group defined as defined in jsonfile
-       group destroy [groupid] - destroy group of groupid
+       group list                        - list all groups
+       group list [groupid]              - list groups in groupid
+       group create [jsonfile]           - create a group defined in jsonfile
+       group update [groupid] [jsonfile] - update group groupid as defined in jsonfile
+       group destroy [groupid]           - destroy group of groupid
 
     deploy
        list               - list all active deploys
@@ -89,6 +89,7 @@ func main() {
 		actions: map[string]Action{
 			"list":    GroupList{c},
 			"create":  GroupCreate{c},
+			"update":  GroupUpdate{c},
 			"destroy": GroupDestroy{c},
 		},
 	}

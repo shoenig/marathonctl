@@ -113,3 +113,30 @@ func (g GroupDestroy) Apply(args []string) {
 
 	fmt.Println("VERSION\n" + v)
 }
+
+type GroupUpdate struct {
+	client *Client
+}
+
+func (g GroupUpdate) Apply(args []string) {
+	Check(len(args) == 2, "must specify groupid and jsonfile")
+	groupid := url.QueryEscape(args[0])
+	f, e := os.Open(args[1])
+	Check(e == nil, "failed to open jsonfile", e)
+	defer f.Close()
+	request := g.client.PUT("/v2/groups/"+groupid, f)
+	response, e := g.client.Do(request)
+	Check(e == nil, "failed to get response", e)
+	defer response.Body.Close()
+
+	sc := response.StatusCode
+	Check(sc == 200, "bad status code", sc)
+
+	dec := json.NewDecoder(response.Body)
+	var update Update
+	e = dec.Decode(&update)
+	Check(e == nil, "failed to decode response", e)
+	title := "DEPLOYID VERSION\n"
+	text := title + update.DeploymentID + " " + update.Version
+	fmt.Println(Columnize(text))
+}
