@@ -22,10 +22,11 @@ const Help = `marathonctl <flags...> [action] <args...>
        destroy [id]           - destroy and remove all instances of id
 
     task
-       list                  - list all tasks
-       list [id]             - list tasks of app of id
-       kill [id]             - kill all tasks of app id
-       kill [id] [taskid]    - kill task taskid of app id
+       list               - list all tasks
+       list [id]          - list tasks of app of id
+       kill [id]          - kill all tasks of app id
+       kill [id] [taskid] - kill task taskid of app id
+       queue              - list all queued tasks
 
     group
        group list              - list all groups
@@ -36,7 +37,6 @@ const Help = `marathonctl <flags...> [action] <args...>
 
     deploy
        list               - list all active deploys
-       queue              - list all queued deployes
        destroy [deployid] - cancel deployment of [deployid]
 
     marathon
