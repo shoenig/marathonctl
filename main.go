@@ -1,7 +1,6 @@
 // Author Seth Hoenig 2015
 
-// Command marathonctl provides total control over Marathon
-// from the command line.
+// Command marathonctl is a CLI tool for Marathon
 package main
 
 import (
