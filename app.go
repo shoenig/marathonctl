@@ -26,7 +26,16 @@ func (a AppList) Apply(args []string) {
 	e = dec.Decode(&applications)
 	Check(e == nil, "failed to unmarshal response", e)
 	title := "APP VERSION USER\n"
-	text := title + applications.String()
+	var b bytes.Buffer
+	for _, app := range applications.Apps {
+		b.WriteString(app.ID)
+		b.WriteString(" ")
+		b.WriteString(app.Version)
+		b.WriteString(" ")
+		b.WriteString(app.User)
+		b.WriteString("\n")
+	}
+	text := title + b.String()
 	fmt.Println(Columnize(text))
 }
 

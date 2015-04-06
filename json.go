@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"os"
 )
@@ -28,19 +27,6 @@ type AppById struct {
 
 type Applications struct {
 	Apps []Application `json:"apps"`
-}
-
-func (a Applications) String() string {
-	var b bytes.Buffer
-	for _, app := range a.Apps {
-		b.WriteString(app.ID)
-		b.WriteString(" ")
-		b.WriteString(app.Version)
-		b.WriteString(" ")
-		b.WriteString(app.User)
-		b.WriteString("\n")
-	}
-	return b.String()
 }
 
 type Tasks struct {
@@ -149,4 +135,21 @@ type Which struct {
 
 type Message struct {
 	Message string `json:"message"`
+}
+
+type Deploys []Deploy
+
+type Deploy struct {
+	AffectedApps   []string `json:"affectedApps"`
+	DeployID       string   `json:"id"`
+	Steps          [][]Step `json:"steps"`
+	CurrentActions []Step   `json:"currentActions"`
+	Version        string   `json:"version"`
+	CurrentStep    int      `json:"currentStep"`
+	TotalSteps     int      `json:"totalSteps"`
+}
+
+type Step struct {
+	Action string `json:"action"`
+	App    string `json:"app"`
 }
