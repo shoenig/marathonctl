@@ -1,5 +1,5 @@
 # marathonctl
-marathonctl is a command line tool for Marathon
+marathonctl is a command line tool for [Marathon](https://mesosphere.github.io/marathon/docs/rest-api.html)
 
 ## Install 
 ```
