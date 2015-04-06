@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strconv"
 )
 
@@ -14,15 +15,25 @@ type GroupList struct {
 }
 
 func (g GroupList) Apply(args []string) {
-	request := g.client.GET("/v2/groups")
+	switch len(args) {
+	case 0:
+		g.listGroups("")
+	case 1:
+		g.listGroups(args[0])
+	default:
+		Check(false, "expected 0 or 1 argument")
+	}
+}
+
+func (g GroupList) listGroups(groupid string) {
+	path := "/v2/groups"
+	if groupid != "" {
+		path += "/" + url.QueryEscape(groupid)
+	}
+	request := g.client.GET(path)
 	response, e := g.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
-
-	// b, e := ioutil.ReadAll(response.Body)
-	// Check(e == nil, "err", e)
-	// fmt.Println(string(b))
-
 	dec := json.NewDecoder(response.Body)
 	var root Group
 	e = dec.Decode(&root)

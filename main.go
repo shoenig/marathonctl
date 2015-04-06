@@ -28,8 +28,8 @@ const Help = `marathonctl <flags...> [action] <args...>
        queue              - list all queued tasks
 
     group
-       group list              - list all groups
-       group list [groupid]    - list apps in group of groupid
+       group list              - list all groups in /
+       group list [groupid]    - list all groups in groupid
        group create [jsonfile] - create a group defined in jsonfile
        group update [jsonfile] - update group defined as defined in jsonfile
        group destroy [groupid] - destroy group of groupid
