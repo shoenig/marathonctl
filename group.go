@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/url"
+	"os"
 	"strconv"
 )
 
@@ -38,9 +40,13 @@ func (g GroupList) listGroups(groupid string) {
 	var root Group
 	e = dec.Decode(&root)
 	Check(e == nil, "failed to unmarshal response", e)
+	printGroup(&root)
+}
+
+func printGroup(group *Group) {
 	title := "GROUPID VERSION GROUPS APPS\n"
 	var b bytes.Buffer
-	gatherGroup(&root, &b)
+	gatherGroup(group, &b)
 	text := title + b.String()
 	fmt.Println(Columnize(text))
 }
@@ -64,7 +70,25 @@ type GroupCreate struct {
 }
 
 func (g GroupCreate) Apply(args []string) {
-	Check(false, "group create todo")
+	Check(len(args) == 1, "must supply 1 jsonfile")
+	f, e := os.Open(args[0])
+	Check(e == nil, "failed to open jsonfile", e)
+	defer f.Close()
+	request := g.client.POST("/v2/groups", f)
+	response, e := g.client.Do(request)
+	Check(e == nil, "failed to get response")
+	defer response.Body.Close()
+	Check(response.StatusCode != 409, "group already exists")
+
+	b, e := ioutil.ReadAll(response.Body)
+	Check(e == nil, "error", e)
+	fmt.Println(string(b))
+	// dec := json.NewDecoder(response.Body)
+	// var group Group
+	// e = dec.Decode(&group)
+	// Check(e == nil, "failed to unmarshal group", e)
+	// printGroup(&group)
+
 }
 
 type GroupDestroy struct {
@@ -72,5 +96,23 @@ type GroupDestroy struct {
 }
 
 func (g GroupDestroy) Apply(args []string) {
-	Check(false, "group destroy todo")
+	Check(len(args) == 1, "must specify groupid")
+	groupid := url.QueryEscape(args[0])
+	path := "/v2/groups/" + groupid
+	request := g.client.DELETE(path)
+	response, e := g.client.Do(request)
+	Check(e == nil, "destroy group failed", e)
+	defer response.Body.Close()
+	c := response.StatusCode
+	Check(c != 404, "unknown group")
+	Check(c == 200, "destroy group bad status", c)
+	dec := json.NewDecoder(response.Body)
+	var versionmap map[string]string // ugh
+	e = dec.Decode(&versionmap)
+	Check(e == nil, "failed to decode response", e)
+
+	v, ok := versionmap["version"]
+	Check(ok, "version missing")
+
+	fmt.Println("VERSION\n" + v)
 }

@@ -1,0 +1,71 @@
+{
+    "id": "websites",
+    "groups" : [
+        {
+            "id": "google",
+            "groups": [
+                {
+                    "id": "calendar.google.com",
+                    "apps":[
+                        {
+                            "id": "ping-google-calendar",
+                            "cmd": "ping calendar.google.com",
+                            "cpus": 0.1,
+                            "mem": 1.0,
+                            "executor": "",
+                            "instances": 2,
+                            "user": "agg"
+                        }
+                    ]
+                },
+                {
+                    "id": "news.google.com",
+                    "apps":[
+                        {
+                            "id": "ping-google-news",
+                            "cmd": "ping news.google.com",
+                            "cpus": 0.1,
+                            "mem": 1.0,
+                            "executor": "",
+                            "instances": 3,
+                            "user": "agg"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "indeed",
+            "groups": [
+                {
+                    "id": "indeed-pings",
+                    "groups":[
+                        {
+                            "id": "a.indeed.com",
+                            "apps":[
+                                {
+                                    "id": "ping-a-indeed.com",
+                                    "cmd": "ping indeed.com",
+                                    "cpus": 0.1,
+                                    "mem": 1.0,
+                                    "executor": "",
+                                    "instances": 1,
+                                    "user": "agg"
+                                },
+                                {
+                                    "id": "ping-b-indeed.com",
+                                    "cmd": "ping indeed.com",
+                                    "cpus": 0.1,
+                                    "mem": 1.0,
+                                    "executor": "",
+                                    "instances": 4,
+                                    "user": "agg"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
