@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"strconv"
@@ -80,15 +79,13 @@ func (g GroupCreate) Apply(args []string) {
 	defer response.Body.Close()
 	Check(response.StatusCode != 409, "group already exists")
 
-	b, e := ioutil.ReadAll(response.Body)
-	Check(e == nil, "error", e)
-	fmt.Println(string(b))
-	// dec := json.NewDecoder(response.Body)
-	// var group Group
-	// e = dec.Decode(&group)
-	// Check(e == nil, "failed to unmarshal group", e)
-	// printGroup(&group)
-
+	dec := json.NewDecoder(response.Body)
+	var update Update
+	e = dec.Decode(&update)
+	Check(e == nil, "failed to decode response", e)
+	title := "DEPLOYID VERSION\n"
+	text := title + update.DeploymentID + " " + update.Version
+	fmt.Println(Columnize(text))
 }
 
 type GroupDestroy struct {
