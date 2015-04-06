@@ -59,7 +59,9 @@ func Usage() {
 }
 
 func main() {
-	host, login, e := Config()
+	host, login, format, e := Config()
+
+	fmt.Println("format", format)
 
 	if e != nil {
 		Usage()
