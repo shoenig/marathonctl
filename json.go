@@ -162,3 +162,11 @@ type Step struct {
 	Action string `json:"action"`
 	App    string `json:"app"`
 }
+
+type Group struct {
+	GroupID      string         `json:"id"`
+	Version      string         `json:"version"`
+	Apps         []*Application `json:"apps"`
+	Dependencies []string       `json:"dependencies"`
+	Groups       []*Group       `json:"groups"`
+}
