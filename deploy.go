@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strconv"
 )
 
@@ -52,10 +53,22 @@ func (d DeployQueue) Apply(args []string) {
 	Check(false, "todo: deploy queue")
 }
 
-type DeployDestroy struct {
+type DeployCancel struct {
 	client *Client
 }
 
-func (d DeployDestroy) Apply(args []string) {
-	Check(false, "todo: deploy destroy")
+func (d DeployCancel) Apply(args []string) {
+	Check(len(args) == 1, "must supply deployid")
+	deployid := url.QueryEscape(args[0])
+	path := "/v2/deployments/" + deployid
+	request := d.client.DELETE(path)
+	response, e := d.client.Do(request)
+	Check(e == nil, "failed to cancel deploy", e)
+	dec := json.NewDecoder(response.Body)
+	var rollback Update
+	e = dec.Decode(&rollback)
+	Check(e == nil, "failed to decode response", e)
+	title := "DEPLOYID VERSION\n"
+	text := title + rollback.DeploymentID + " " + rollback.Version
+	fmt.Println(Columnize(text))
 }
