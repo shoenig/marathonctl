@@ -56,4 +56,4 @@ marathonctl <flags...> [action] <args...>
 ## Bugs
 - None of the group commands work yet
 - None of the format flags work yet
-- Only one host can be specified (although using a non-master node will work)
+- Only one host can be specified (although using a non-leader node will work)
