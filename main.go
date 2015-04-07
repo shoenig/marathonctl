@@ -71,12 +71,12 @@ func main() {
 	app := &Category{
 		actions: map[string]Action{
 			"list":     AppList{c, f},
-			"versions": AppVersions{c},
-			"show":     AppShow{c},
-			"create":   AppCreate{c},
-			"update":   AppUpdate{c},
-			"restart":  AppRestart{c},
-			"destroy":  AppDestroy{c},
+			"versions": AppVersions{c, f},
+			"show":     AppShow{c, f},
+			"create":   AppCreate{c, f},
+			"update":   AppUpdate{c, f},
+			"restart":  AppRestart{c, f},
+			"destroy":  AppDestroy{c, f},
 		},
 	}
 	task := &Category{
@@ -89,9 +89,9 @@ func main() {
 	group := &Category{
 		actions: map[string]Action{
 			"list":    GroupList{c, f},
-			"create":  GroupCreate{c},
-			"update":  GroupUpdate{c},
-			"destroy": GroupDestroy{c},
+			"create":  GroupCreate{c, f},
+			"update":  GroupUpdate{c, f},
+			"destroy": GroupDestroy{c, f},
 		},
 	}
 	deploy := &Category{

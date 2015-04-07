@@ -72,6 +72,7 @@ func gatherGroup(g *Group, b *bytes.Buffer) {
 
 type GroupCreate struct {
 	client *Client
+	format Formatter
 }
 
 func (g GroupCreate) Apply(args []string) {
@@ -84,18 +85,22 @@ func (g GroupCreate) Apply(args []string) {
 	Check(e == nil, "failed to get response")
 	defer response.Body.Close()
 	Check(response.StatusCode != 409, "group already exists")
+	fmt.Println(g.format.Format(response.Body, g.Humanize))
+}
 
-	dec := json.NewDecoder(response.Body)
+func (g GroupCreate) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var update Update
-	e = dec.Decode(&update)
+	e := dec.Decode(&update)
 	Check(e == nil, "failed to decode response", e)
 	title := "DEPLOYID VERSION\n"
 	text := title + update.DeploymentID + " " + update.Version
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }
 
 type GroupDestroy struct {
 	client *Client
+	format Formatter
 }
 
 func (g GroupDestroy) Apply(args []string) {
@@ -109,19 +114,23 @@ func (g GroupDestroy) Apply(args []string) {
 	c := response.StatusCode
 	Check(c != 404, "unknown group")
 	Check(c == 200, "destroy group bad status", c)
-	dec := json.NewDecoder(response.Body)
-	var versionmap map[string]string // ugh
-	e = dec.Decode(&versionmap)
-	Check(e == nil, "failed to decode response", e)
 
+	fmt.Println(g.format.Format(response.Body, g.Humanize))
+}
+
+func (g GroupDestroy) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
+	var versionmap map[string]string // ugh
+	e := dec.Decode(&versionmap)
+	Check(e == nil, "failed to decode response", e)
 	v, ok := versionmap["version"]
 	Check(ok, "version missing")
-
-	fmt.Println("VERSION\n" + v)
+	return "VERSION\n" + v
 }
 
 type GroupUpdate struct {
 	client *Client
+	format Formatter
 }
 
 func (g GroupUpdate) Apply(args []string) {
@@ -138,11 +147,15 @@ func (g GroupUpdate) Apply(args []string) {
 	sc := response.StatusCode
 	Check(sc == 200, "bad status code", sc)
 
-	dec := json.NewDecoder(response.Body)
+	fmt.Println(g.format.Format(response.Body, g.Humanize))
+}
+
+func (g GroupUpdate) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var update Update
-	e = dec.Decode(&update)
+	e := dec.Decode(&update)
 	Check(e == nil, "failed to decode response", e)
 	title := "DEPLOYID VERSION\n"
 	text := title + update.DeploymentID + " " + update.Version
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }

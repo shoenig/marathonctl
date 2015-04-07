@@ -23,9 +23,7 @@ func (a AppList) Apply(args []string) {
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
-
-	f := a.format.Format(response.Body, a.Humanize)
-	fmt.Println(f)
+	fmt.Println(a.format.Format(response.Body, a.Humanize))
 }
 
 func (a AppList) Humanize(body io.Reader) string {
@@ -49,6 +47,7 @@ func (a AppList) Humanize(body io.Reader) string {
 
 type AppVersions struct {
 	client *Client
+	format Formatter
 }
 
 func (a AppVersions) Apply(args []string) {
@@ -58,17 +57,27 @@ func (a AppVersions) Apply(args []string) {
 	request := a.client.GET(path)
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to list verions", e)
-	dec := json.NewDecoder(response.Body)
+	defer response.Body.Close()
+	fmt.Println(a.format.Format(response.Body, a.Humanize))
+}
+
+func (a AppVersions) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var versions Versions
-	e = dec.Decode(&versions)
+	e := dec.Decode(&versions)
 	Check(e == nil, "failed to unmarshal response", e)
+	var b bytes.Buffer
+	b.WriteString("VERSIONS\n")
 	for _, version := range versions.Versions {
-		fmt.Println(version)
+		b.WriteString(version)
+		b.WriteString("\n")
 	}
+	return b.String()
 }
 
 type AppShow struct {
 	client *Client
+	format Formatter
 }
 
 func (a AppShow) Apply(args []string) {
@@ -79,9 +88,14 @@ func (a AppShow) Apply(args []string) {
 	request := a.client.GET(path)
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to show app", e)
-	dec := json.NewDecoder(response.Body)
+	defer response.Body.Close()
+	fmt.Println(a.format.Format(response.Body, a.Humanize))
+}
+
+func (a AppShow) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var application Application
-	e = dec.Decode(&application)
+	e := dec.Decode(&application)
 	Check(e == nil, "failed to unmarshal response", e)
 	title := "INSTANCES MEM CMD\n"
 	var b bytes.Buffer
@@ -91,37 +105,44 @@ func (a AppShow) Apply(args []string) {
 	b.WriteString(mem)
 	b.WriteString(" ")
 	b.WriteString(application.Cmd)
-
 	text := title + b.String()
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }
 
 type AppCreate struct {
 	client *Client
+	format Formatter
 }
 
 func (a AppCreate) Apply(args []string) {
 	Check(len(args) == 1, "must specifiy 1 jsonfile")
-
 	f, e := os.Open(args[0])
 	Check(e == nil, "failed to open jsonfile", e)
 	defer f.Close()
-
 	request := a.client.POST("/v2/apps", f)
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
 	Check(response.StatusCode != 409, "app already exists")
+	fmt.Println(a.format.Format(response.Body, a.Humanize))
+}
 
-	dec := json.NewDecoder(response.Body)
+func (a AppCreate) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var application Application
-	e = dec.Decode(&application)
+	e := dec.Decode(&application)
 	Check(e == nil, "failed to decode response", e)
-	fmt.Println(application.ID, application.Version)
+	var b bytes.Buffer
+	b.WriteString("APPID VERSION\n")
+	b.WriteString(application.ID)
+	b.WriteString(" ")
+	b.WriteString(application.Version)
+	return Columnize(b.String())
 }
 
 type AppUpdate struct {
 	client *Client
+	format Formatter
 }
 
 func (a AppUpdate) Apply(args []string) {
@@ -135,21 +156,24 @@ func (a AppUpdate) Apply(args []string) {
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
-
 	sc := response.StatusCode
 	Check(sc == 200, "bad status code", sc)
+	fmt.Println(a.format.Format(response.Body, a.Humanize))
+}
 
-	dec := json.NewDecoder(response.Body)
+func (a AppUpdate) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var update Update
-	e = dec.Decode(&update)
+	e := dec.Decode(&update)
 	Check(e == nil, "failed to decode response", e)
 	title := "DEPLOYID VERSION\n"
 	text := title + update.DeploymentID + " " + update.Version
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }
 
 type AppRestart struct {
 	client *Client
+	format Formatter
 }
 
 func (a AppRestart) Apply(args []string) {
@@ -159,17 +183,22 @@ func (a AppRestart) Apply(args []string) {
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
-	dec := json.NewDecoder(response.Body)
+	fmt.Println(a.format.Format(response.Body, a.Humanize))
+}
+
+func (a AppRestart) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var update Update
-	e = dec.Decode(&update)
+	e := dec.Decode(&update)
 	Check(e == nil, "failed to decode response", e)
 	title := "DEPLOYID VERSION\n"
 	text := title + update.DeploymentID + " " + update.Version
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }
 
 type AppDestroy struct {
 	client *Client
+	format Formatter
 }
 
 func (a AppDestroy) Apply(args []string) {
@@ -181,5 +210,10 @@ func (a AppDestroy) Apply(args []string) {
 	c := response.StatusCode
 	// documentation says this is 204, wtf
 	Check(c == 200, "destroy app bad status", c)
-	fmt.Println("destroyed", args[0])
+	defer response.Body.Close()
+	fmt.Println(a.format.Format(response.Body, a.Humanize))
+}
+
+func (a AppDestroy) Humanize(body io.Reader) string {
+	return "DESTROYED"
 }
