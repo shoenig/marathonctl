@@ -55,4 +55,4 @@ marathonctl <flags...> [action] <args...>
 ```
 
 ## Bugs
-- Only one host can be specified (although using a non-leader node will work)
+- ping does not return json
