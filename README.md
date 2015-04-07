@@ -54,5 +54,15 @@ marathonctl <flags...> [action] <args...>
        raw    (the exact response from Marathon)
 ```
 
+## Configuration
+- Specify using "-c [file]" or "-h [host:port]"
+    
+### Configuration Properties
+```
+marathon.host: http://localhost:8080
+marathon.user: bob
+marathon.password: passw0rd
+```    
+    
 ## Bugs
 - ping does not return json
