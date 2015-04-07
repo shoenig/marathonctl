@@ -1,5 +1,7 @@
 package main
 
+// All actions under command group
+
 import (
 	"bytes"
 	"encoding/json"
@@ -9,8 +11,6 @@ import (
 	"os"
 	"strconv"
 )
-
-// group [actions]
 
 type GroupList struct {
 	client *Client
