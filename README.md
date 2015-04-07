@@ -48,9 +48,10 @@ marathonctl <flags...> [action] <args...>
   -h [host]
   -u [user:password] (separated by colon)
   -f [format]
-       human  (simplified, default)
+       human  (simplified columns, default)
        json   (json on one line)
        jsonpp (json pretty printed)
+       raw    (the exact response from Marathon)
 ```
 
 ## Bugs
