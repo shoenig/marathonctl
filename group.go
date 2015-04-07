@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 
 type GroupList struct {
 	client *Client
+	format Formatter
 }
 
 func (g GroupList) Apply(args []string) {
@@ -35,19 +37,23 @@ func (g GroupList) listGroups(groupid string) {
 	response, e := g.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
-	dec := json.NewDecoder(response.Body)
-	var root Group
-	e = dec.Decode(&root)
-	Check(e == nil, "failed to unmarshal response", e)
-	printGroup(&root)
+	fmt.Println(g.format.Format(response.Body, g.Humanize))
 }
 
-func printGroup(group *Group) {
+func (g GroupList) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
+	var root Group
+	e := dec.Decode(&root)
+	Check(e == nil, "failed to unmarshal response", e)
+	return columnizeGroup(&root)
+}
+
+func columnizeGroup(group *Group) string {
 	title := "GROUPID VERSION GROUPS APPS\n"
 	var b bytes.Buffer
 	gatherGroup(group, &b)
 	text := title + b.String()
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }
 
 func gatherGroup(g *Group, b *bytes.Buffer) {

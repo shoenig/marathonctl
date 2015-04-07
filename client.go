@@ -7,6 +7,7 @@ import (
 )
 
 type Action interface {
+	// Apply runs the command with args and gets the json result.
 	Apply(args []string)
 }
 

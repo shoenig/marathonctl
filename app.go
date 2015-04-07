@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 
 type AppList struct {
 	client *Client
+	format Formatter
 }
 
 func (a AppList) Apply(args []string) {
@@ -21,9 +23,15 @@ func (a AppList) Apply(args []string) {
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
-	dec := json.NewDecoder(response.Body)
+
+	f := a.format.Format(response.Body, a.Humanize)
+	fmt.Println(f)
+}
+
+func (a AppList) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var applications Applications
-	e = dec.Decode(&applications)
+	e := dec.Decode(&applications)
 	Check(e == nil, "failed to unmarshal response", e)
 	title := "APP VERSION USER\n"
 	var b bytes.Buffer
@@ -36,7 +44,7 @@ func (a AppList) Apply(args []string) {
 		b.WriteString("\n")
 	}
 	text := title + b.String()
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }
 
 type AppVersions struct {

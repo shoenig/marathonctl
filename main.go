@@ -61,17 +61,16 @@ func Usage() {
 func main() {
 	host, login, format, e := Config()
 
-	fmt.Println("format", format)
-
 	if e != nil {
 		Usage()
 	}
 
+	f := NewFormatter(format)
 	l := NewLogin(host, login)
 	c := NewClient(l)
 	app := &Category{
 		actions: map[string]Action{
-			"list":     AppList{c},
+			"list":     AppList{c, f},
 			"versions": AppVersions{c},
 			"show":     AppShow{c},
 			"create":   AppCreate{c},
@@ -89,7 +88,7 @@ func main() {
 	}
 	group := &Category{
 		actions: map[string]Action{
-			"list":    GroupList{c},
+			"list":    GroupList{c, f},
 			"create":  GroupCreate{c},
 			"update":  GroupUpdate{c},
 			"destroy": GroupDestroy{c},
