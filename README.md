@@ -104,7 +104,7 @@ GROUPID                                     VERSION                   GROUPS  AP
 #### App Create
 - This example demonstrates creating an app as specified in a json file
 ````
-$ ./marathonctl -c /etc/marathon.properties app create sample/ping.google.json 
+$ ./marathonctl -c /etc/marathonctl.properties app create sample/ping.google.json 
 APPID                VERSION                   
 /hoenig/ping-google  2015-04-07T21:41:53.440Z
 ````
