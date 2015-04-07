@@ -59,35 +59,42 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 
 func (c *Client) GET(path string) *http.Request {
 	url := c.login.Host + path
-	r, e := http.NewRequest("GET", url, nil)
+	request, e := http.NewRequest("GET", url, nil)
 	Check(e == nil, "failed to crete GET request", e)
-	r.SetBasicAuth(c.login.User, c.login.Pass)
-	return r
+	c.tweak(request)
+	return request
 }
 
 func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
 	url := c.login.Host + path
-	r, e := http.NewRequest("POST", url, body)
+	request, e := http.NewRequest("POST", url, body)
 	Check(e == nil, "failed to create POST request", e)
-	r.Header.Set("Content-Type", "application/json")
-	r.SetBasicAuth(c.login.User, c.login.Pass)
-	return r
+	c.tweak(request)
+	return request
 }
 
 func (c *Client) DELETE(path string) *http.Request {
 	url := c.login.Host + path
-	r, e := http.NewRequest("DELETE", url, nil)
+	request, e := http.NewRequest("DELETE", url, nil)
 	Check(e == nil, "failed to create DELETE request", e)
-	r.Header.Set("Content-Type", "application/json")
-	r.SetBasicAuth(c.login.User, c.login.Pass)
-	return r
+	c.tweak(request)
+	return request
 }
 
 func (c *Client) PUT(path string, body io.ReadCloser) *http.Request {
 	url := c.login.Host + path
-	r, e := http.NewRequest("PUT", url, body)
+	request, e := http.NewRequest("PUT", url, body)
 	Check(e == nil, "failed to create PUT request", e)
-	r.Header.Set("Content-Type", "application/json")
-	r.SetBasicAuth(c.login.User, c.login.Pass)
-	return r
+	c.tweak(request)
+	return request
+}
+
+// tweak will set:
+// Content-Type: application/json
+// Accept: application/json
+// Accept-Encoding: gzip, deflate, compress
+func (c *Client) tweak(request *http.Request) {
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json")
+	request.SetBasicAuth(c.login.User, c.login.Pass)
 }

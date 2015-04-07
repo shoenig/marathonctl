@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
 	"strconv"
 )
@@ -12,6 +13,7 @@ import (
 
 type TaskList struct {
 	client *Client
+	format Formatter
 }
 
 func (t TaskList) Apply(args []string) {
@@ -29,10 +31,15 @@ func (t TaskList) listAll() {
 	path := "/v2/tasks"
 	request := t.client.GET(path)
 	response, e := t.client.Do(request)
+	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
-	dec := json.NewDecoder(response.Body)
+	fmt.Println(t.format.Format(response.Body, t.HumanizeAll))
+}
+
+func (t TaskList) HumanizeAll(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var tasks Tasks
-	e = dec.Decode(&tasks)
+	e := dec.Decode(&tasks)
 	Check(e == nil, "failed to unmarshal response", e)
 	var b bytes.Buffer
 	for _, task := range tasks.Tasks {
@@ -47,7 +54,7 @@ func (t TaskList) listAll() {
 	}
 	title := "APPID HOST VERSION TASKID\n"
 	text := title + b.String()
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }
 
 func (t TaskList) listById(id string) {
@@ -57,9 +64,13 @@ func (t TaskList) listById(id string) {
 	response, e := t.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
-	dec := json.NewDecoder(response.Body)
+	fmt.Println(t.format.Format(response.Body, t.HumanizeById))
+}
+
+func (t TaskList) HumanizeById(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var appbyid AppById
-	e = dec.Decode(&appbyid)
+	e := dec.Decode(&appbyid)
 	Check(e == nil, "failed to unmarshal response", e)
 
 	var b bytes.Buffer
@@ -73,11 +84,12 @@ func (t TaskList) listById(id string) {
 	}
 	title := "ID HOST VERSION\n"
 	text := title + b.String()
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }
 
 type TaskKill struct {
 	client *Client
+	format Formatter
 }
 
 func (t TaskKill) Apply(args []string) {
@@ -102,7 +114,7 @@ func (t TaskKill) killAll(id string) {
 	sc := response.StatusCode
 	Check(sc != 404, "unknown id")
 	Check(sc == 200, "failed with status code", sc)
-	fmt.Println("success")
+	t.format.Format(response.Body, t.Humanize)
 }
 
 func (t TaskKill) killOnly(id, taskid string) {
@@ -116,11 +128,17 @@ func (t TaskKill) killOnly(id, taskid string) {
 	sc := response.StatusCode
 	Check(sc != 404, "unknown appid or taskid")
 	Check(sc == 200, "failed with status code", sc)
-	fmt.Println("success")
+	t.format.Format(response.Body, t.Humanize)
+}
+
+func (t TaskKill) Humanize(body io.Reader) string {
+	// todo does this actually return a list of killed tasks?
+	return "success"
 }
 
 type TaskQueue struct {
 	client *Client
+	format Formatter
 }
 
 func (t TaskQueue) Apply(args []string) {
@@ -129,9 +147,13 @@ func (t TaskQueue) Apply(args []string) {
 	response, e := t.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
-	dec := json.NewDecoder(response.Body)
+	fmt.Println(t.format.Format(response.Body, t.Humanize))
+}
+
+func (t TaskQueue) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var queue Queue
-	e = dec.Decode(&queue)
+	e := dec.Decode(&queue)
 	Check(e == nil, "failed to decode response", e)
 	title := "APP VERSION OVERDUE\n"
 	var b bytes.Buffer
@@ -144,5 +166,5 @@ func (t TaskQueue) Apply(args []string) {
 		b.WriteString("\n")
 	}
 	text := title + b.String()
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }

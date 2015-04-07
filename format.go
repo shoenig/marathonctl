@@ -13,6 +13,7 @@ const (
 	Human Format = iota
 	Json
 	JsonPP
+	Raw
 )
 
 type Humanize func(input io.Reader) string
@@ -27,6 +28,8 @@ func NewFormatter(f string) Formatter {
 		return Formatter{JsonPP}
 	case "json":
 		return Formatter{Json}
+	case "raw":
+		return Formatter{Raw}
 	default:
 		return Formatter{Human}
 	}
@@ -38,6 +41,8 @@ func (f Formatter) Format(input io.Reader, h Humanize) string {
 		return f.JsonPPize(input)
 	case Json:
 		return f.Jsonize(input)
+	case Raw:
+		return f.Raw(input)
 	default:
 		return h(input)
 	}
@@ -59,4 +64,11 @@ func (f Formatter) JsonPPize(input io.Reader) string {
 	Check(e == nil, "failed to read input", e)
 	json.Indent(&s, b, "", "    ")
 	return s.String()
+}
+
+// Raw returns the raw input unmodified.
+func (f Formatter) Raw(input io.Reader) string {
+	b, e := ioutil.ReadAll(input)
+	Check(e == nil, "failed to read input", e)
+	return string(b)
 }
