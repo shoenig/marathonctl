@@ -101,6 +101,13 @@ GROUPID                                     VERSION                   GROUPS  AP
 /websites/google/news.google.com            2015-04-07T20:29:35.672Z  0       1     
 /websites/google/calendar.google.com        2015-04-07T20:29:35.672Z  0       1
 ````
+#### App Create
+- This example demonstrates creating an app as specified in a json file
+````
+$ ./marathonctl -c /etc/marathon.properties app create sample/ping.google.json 
+APPID                VERSION                   
+/hoenig/ping-google  2015-04-07T21:41:53.440Z
+````
 
 ## Bugs
 - ping does not return json
