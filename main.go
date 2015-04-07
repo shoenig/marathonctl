@@ -96,15 +96,15 @@ func main() {
 	}
 	deploy := &Category{
 		actions: map[string]Action{
-			"list":   DeployList{c},
-			"cancel": DeployCancel{c},
+			"list":   DeployList{c, f},
+			"cancel": DeployCancel{c, f},
 		},
 	}
 	marathon := &Category{
 		actions: map[string]Action{
-			"leader":   Leader{c},
-			"abdicate": Abdicate{c},
-			"ping":     Ping{c},
+			"leader":   Leader{c, f},
+			"abdicate": Abdicate{c, f},
+			"ping":     Ping{c, f},
 		},
 	}
 	t := &Tool{

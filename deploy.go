@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
 	"strconv"
 )
@@ -12,6 +13,7 @@ import (
 
 type DeployList struct {
 	client *Client
+	format Formatter
 }
 
 func (d DeployList) Apply(args []string) {
@@ -19,10 +21,15 @@ func (d DeployList) Apply(args []string) {
 	request := d.client.GET("/v2/deployments")
 	response, e := d.client.Do(request)
 	Check(e == nil, "failed to get response")
-	dec := json.NewDecoder(response.Body)
+
 	defer response.Body.Close()
+	fmt.Println(d.format.Format(response.Body, d.Humanize))
+}
+
+func (d DeployList) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var deploys Deploys
-	e = dec.Decode(&deploys)
+	e := dec.Decode(&deploys)
 	Check(e == nil, "failed to unmarshal response", e)
 	title := "DEPLOYID VERSION PROGRESS APPS\n"
 	var b bytes.Buffer
@@ -42,11 +49,12 @@ func (d DeployList) Apply(args []string) {
 		b.WriteString("\n")
 	}
 	text := title + b.String()
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }
 
 type DeployCancel struct {
 	client *Client
+	format Formatter
 }
 
 func (d DeployCancel) Apply(args []string) {
@@ -56,11 +64,15 @@ func (d DeployCancel) Apply(args []string) {
 	request := d.client.DELETE(path)
 	response, e := d.client.Do(request)
 	Check(e == nil, "failed to cancel deploy", e)
-	dec := json.NewDecoder(response.Body)
+	defer response.Body.Close()
+}
+
+func (d DeployCancel) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var rollback Update
-	e = dec.Decode(&rollback)
+	e := dec.Decode(&rollback)
 	Check(e == nil, "failed to decode response", e)
 	title := "DEPLOYID VERSION\n"
 	text := title + rollback.DeploymentID + " " + rollback.Version
-	fmt.Println(Columnize(text))
+	return Columnize(text)
 }

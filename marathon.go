@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"strings"
 	"time"
@@ -13,26 +14,30 @@ import (
 // ping (todo ping all hosts)
 type Ping struct {
 	client *Client
+	format Formatter
 }
 
 func (p Ping) Apply(args []string) {
 	request := p.client.GET("/ping")
 	start := time.Now()
 	response, e := p.client.Do(request)
-	elapsed := time.Now().Sub(start)
 	Check(e == nil, "ping failed", e)
-	c := response.StatusCode
-	Check(c == 200, "ping bad status", c)
 	defer response.Body.Close()
-	body, e := ioutil.ReadAll(response.Body)
+	elapsed := fmt.Sprintf("%v", time.Now().Sub(start))
+	fmt.Println(p.format.Format(strings.NewReader(elapsed), p.Humanize))
+}
+
+func (P Ping) Humanize(body io.Reader) string {
+	b, e := ioutil.ReadAll(body)
 	Check(e == nil, "reading ping response failed", e)
-	pong := strings.TrimSpace(string(body))
-	fmt.Println(pong, elapsed)
+	// todo print HOST ELAPSED title and print hosts
+	return fmt.Sprintf("elapsed: %s", string(b))
 }
 
 // leader
 type Leader struct {
 	client *Client
+	format Formatter
 }
 
 func (l Leader) Apply(args []string) {
@@ -42,17 +47,22 @@ func (l Leader) Apply(args []string) {
 	c := response.StatusCode
 	Check(c == 200, "get leader bad status", c)
 	defer response.Body.Close()
+	fmt.Println(l.format.Format(response.Body, l.Humanize))
+}
 
-	dec := json.NewDecoder(response.Body)
+func (l Leader) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var which Which
-	e = dec.Decode(&which)
+	e := dec.Decode(&which)
 	Check(e == nil, "failed to decode response", e)
-	fmt.Println(which.Leader)
+	text := "LEADER\n" + which.Leader
+	return Columnize(text)
 }
 
 // abdicate
 type Abdicate struct {
 	client *Client
+	format Formatter
 }
 
 func (a Abdicate) Apply(args []string) {
@@ -62,10 +72,13 @@ func (a Abdicate) Apply(args []string) {
 	c := response.StatusCode
 	Check(c == 200, "abdicate bad status", c)
 	defer response.Body.Close()
+	fmt.Println(a.format.Format(response.Body, a.Humanize))
+}
 
-	dec := json.NewDecoder(response.Body)
+func (a Abdicate) Humanize(body io.Reader) string {
+	dec := json.NewDecoder(body)
 	var mess Message
-	e = dec.Decode(&mess)
+	e := dec.Decode(&mess)
 	Check(e == nil, "failed to decode response", e)
-	fmt.Println(mess.Message)
+	return "MESSAGE\n" + mess.Message
 }
