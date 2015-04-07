@@ -1,8 +1,12 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"os"
 	"strings"
 )
 
@@ -12,17 +16,18 @@ type Action interface {
 }
 
 type Login struct {
-	Host string // todo multi hosts
-	User string
-	Pass string
+	Hosts []string
+	User  string
+	Pass  string
 }
 
-func NewLogin(host, login string) *Login {
+func NewLogin(hosts, login string) *Login {
+	hostlist := strings.Split(hosts, ",")
 	toks := strings.SplitN(login, ":", 2)
 	return &Login{
-		Host: host,
-		User: toks[0],
-		Pass: toks[1],
+		Hosts: hostlist,
+		User:  toks[0],
+		Pass:  toks[1],
 	}
 }
 
@@ -54,11 +59,28 @@ func NewClient(login *Login) *Client {
 }
 
 func (c *Client) Do(r *http.Request) (*http.Response, error) {
-	return c.client.Do(r)
+	// this is not ghetto at all
+	original := r.URL.String()
+	// try each host until success or run out
+	for _, host := range c.login.Hosts {
+		fixed := strings.Replace(original, "HOST", host, 1)
+		url, e := url.Parse(fixed)
+		Check(e == nil, "could not parse fixed url", e)
+		r.URL = url
+		if response, e := c.client.Do(r); e == nil {
+			return response, nil
+		} else {
+			fmt.Fprintf(os.Stderr, "request to %s failed\n", host)
+			ourl, e := url.Parse(original)
+			Check(e == nil, "could not parse original url")
+			r.URL = ourl
+		}
+	}
+	return nil, errors.New("requests to all hosts failed")
 }
 
 func (c *Client) GET(path string) *http.Request {
-	url := c.login.Host + path
+	url := "HOST" + path
 	request, e := http.NewRequest("GET", url, nil)
 	Check(e == nil, "failed to crete GET request", e)
 	c.tweak(request)
@@ -66,7 +88,7 @@ func (c *Client) GET(path string) *http.Request {
 }
 
 func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
-	url := c.login.Host + path
+	url := "HOST" + path
 	request, e := http.NewRequest("POST", url, body)
 	Check(e == nil, "failed to create POST request", e)
 	c.tweak(request)
@@ -74,7 +96,7 @@ func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
 }
 
 func (c *Client) DELETE(path string) *http.Request {
-	url := c.login.Host + path
+	url := "HOST" + path
 	request, e := http.NewRequest("DELETE", url, nil)
 	Check(e == nil, "failed to create DELETE request", e)
 	c.tweak(request)
@@ -82,7 +104,7 @@ func (c *Client) DELETE(path string) *http.Request {
 }
 
 func (c *Client) PUT(path string, body io.ReadCloser) *http.Request {
-	url := c.login.Host + path
+	url := "HOST" + path
 	request, e := http.NewRequest("PUT", url, body)
 	Check(e == nil, "failed to create PUT request", e)
 	c.tweak(request)
