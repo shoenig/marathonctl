@@ -48,9 +48,10 @@ const Help = `marathonctl <flags...> [action] <args...>
   -h [host]
   -u [user:password] (separated by colon)
   -f [format]
-       human  (simplified, default)
+       human  (simplified columns, default)
        json   (json on one line)
        jsonpp (json pretty printed)
+       raw    (the exact response from Marathon)
 `
 
 func Usage() {
@@ -102,9 +103,9 @@ func main() {
 	}
 	marathon := &Category{
 		actions: map[string]Action{
-			"leader":   Leader{c, f},
-			"abdicate": Abdicate{c, f},
-			"ping":     Ping{c, f},
+			"leader":   MarathonLeader{c, f},
+			"abdicate": MarathonAbdicate{c, f},
+			"ping":     MarathonPing{c, f},
 		},
 	}
 	t := &Tool{

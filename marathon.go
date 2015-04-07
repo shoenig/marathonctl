@@ -1,5 +1,7 @@
 package main
 
+// All actions under command marathon
+
 import (
 	"encoding/json"
 	"fmt"
@@ -9,15 +11,13 @@ import (
 	"time"
 )
 
-// marathon [actions]
-
 // ping (todo ping all hosts)
-type Ping struct {
+type MarathonPing struct {
 	client *Client
 	format Formatter
 }
 
-func (p Ping) Apply(args []string) {
+func (p MarathonPing) Apply(args []string) {
 	request := p.client.GET("/ping")
 	start := time.Now()
 	response, e := p.client.Do(request)
@@ -27,7 +27,7 @@ func (p Ping) Apply(args []string) {
 	fmt.Println(p.format.Format(strings.NewReader(elapsed), p.Humanize))
 }
 
-func (P Ping) Humanize(body io.Reader) string {
+func (P MarathonPing) Humanize(body io.Reader) string {
 	b, e := ioutil.ReadAll(body)
 	Check(e == nil, "reading ping response failed", e)
 	// todo print HOST ELAPSED title and print hosts
@@ -35,12 +35,12 @@ func (P Ping) Humanize(body io.Reader) string {
 }
 
 // leader
-type Leader struct {
+type MarathonLeader struct {
 	client *Client
 	format Formatter
 }
 
-func (l Leader) Apply(args []string) {
+func (l MarathonLeader) Apply(args []string) {
 	request := l.client.GET("/v2/leader")
 	response, e := l.client.Do(request)
 	Check(e == nil, "get leader failed", e)
@@ -50,7 +50,7 @@ func (l Leader) Apply(args []string) {
 	fmt.Println(l.format.Format(response.Body, l.Humanize))
 }
 
-func (l Leader) Humanize(body io.Reader) string {
+func (l MarathonLeader) Humanize(body io.Reader) string {
 	dec := json.NewDecoder(body)
 	var which Which
 	e := dec.Decode(&which)
@@ -60,12 +60,12 @@ func (l Leader) Humanize(body io.Reader) string {
 }
 
 // abdicate
-type Abdicate struct {
+type MarathonAbdicate struct {
 	client *Client
 	format Formatter
 }
 
-func (a Abdicate) Apply(args []string) {
+func (a MarathonAbdicate) Apply(args []string) {
 	request := a.client.DELETE("/v2/leader")
 	response, e := a.client.Do(request)
 	Check(e == nil, "abdicate request failed", e)
@@ -75,7 +75,7 @@ func (a Abdicate) Apply(args []string) {
 	fmt.Println(a.format.Format(response.Body, a.Humanize))
 }
 
-func (a Abdicate) Humanize(body io.Reader) string {
+func (a MarathonAbdicate) Humanize(body io.Reader) string {
 	dec := json.NewDecoder(body)
 	var mess Message
 	e := dec.Decode(&mess)

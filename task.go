@@ -1,5 +1,7 @@
 package main
 
+// All actions under task command
+
 import (
 	"bytes"
 	"encoding/json"
@@ -8,8 +10,6 @@ import (
 	"net/url"
 	"strconv"
 )
-
-// All actions under the task command
 
 type TaskList struct {
 	client *Client

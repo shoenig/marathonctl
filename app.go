@@ -1,6 +1,6 @@
 package main
 
-// All actions under the app command
+// All actions under command app
 
 import (
 	"bytes"
