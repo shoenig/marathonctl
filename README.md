@@ -59,10 +59,48 @@ marathonctl <flags...> [action] <args...>
     
 ### Configuration Properties
 ```
-marathon.host: http://localhost:8080
-marathon.user: bob
-marathon.password: passw0rd
-```    
-    
+marathon.host: [hosts] (ex http://node1.indeed.com,http://node2.indeed.com,http://node3.indeed.com)
+marathon.user: [user]
+marathon.password: [password]
+```
+
+## Examples
+
+#### Ping
+- This example demonstrates -h, -u for host/login information
+```
+$ ./marathonctl -h http://localhost:8080 -u seth:seth /etc/marathon.properties marathon ping
+elapsed: 95.789975ms
+```
+#### Leader
+- This example demonstrates -c and a file for host/login information
+- This example demonstrates -f and the jsonpp (pretty printed json) output format
+```
+$ ./marathonctl -f jsonpp -c /etc/marathonctl.properties marathon leader
+{
+    "leader": "tst-mcontrol1:8080"
+}
+```
+#### Abdicate
+- This example demonstrates -f to specify one-line json output format
+````
+ ./marathonctl -f json -c /etc/marathonctl.properties marathon abdicate
+{"message":"Leadership abdicted"}
+````
+#### Group List
+- This example demonstrates the default human readable output
+````
+$ ./marathonctl -c /etc/marathonctl.properties group list
+GROUPID                                     VERSION                   GROUPS  APPS  
+/                                           2015-04-07T20:29:35.672Z  3       0     
+/websites                                   2015-04-07T20:29:35.672Z  2       0     
+/websites/indeed                            2015-04-07T20:29:35.672Z  1       0     
+/websites/indeed/indeed-pings               2015-04-07T20:29:35.672Z  1       0     
+/websites/indeed/indeed-pings/a.indeed.com  2015-04-07T20:29:35.672Z  0       2     
+/websites/google                            2015-04-07T20:29:35.672Z  2       0     
+/websites/google/news.google.com            2015-04-07T20:29:35.672Z  0       1     
+/websites/google/calendar.google.com        2015-04-07T20:29:35.672Z  0       1
+````
+
 ## Bugs
 - ping does not return json
