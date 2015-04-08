@@ -15,7 +15,7 @@ func cliargs() (config, host, login, format string) {
 	flag.StringVar(&config, "c", "", "config file")
 	flag.StringVar(&host, "h", "", "marathon host with transport and port")
 	flag.StringVar(&login, "u", "", "username and password")
-	flag.StringVar(&format, "f", "human", "output format")
+	flag.StringVar(&format, "f", "", "output format")
 	flag.Parse()
 	return
 }
@@ -75,6 +75,9 @@ func Config() (string, string, string, error) {
 		}
 		if format == "" {
 			format = f
+			if format == "" {
+				format = "human"
+			}
 		}
 	}
 
