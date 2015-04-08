@@ -14,6 +14,7 @@ marathonctl <flags...> [action] <args...>
     app
        list                   - list all apps
        versions [id]          - list all versions of apps of id
+       show [id]              - show config of app of id (latest version)
        show [id] [version]    - show config of app of id and version
        create [jsonfile]      - deploy application defined in jsonfile
        update [id] [jsonfile] - update application id as defined in jsonfile
