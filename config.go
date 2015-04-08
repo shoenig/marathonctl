@@ -20,21 +20,22 @@ func cliargs() (config, host, login, format string) {
 	return
 }
 
-func readConfigfile(filename string) (host, login string, e error) {
+func readConfigfile(filename string) (host, login, format string, e error) {
 	c, e := config.ReadProperties(filename)
 	if e != nil {
-		return "", "", e
+		return "", "", "", e
 	}
 	h := c.GetStringOr("marathon.host", "")
 	u := c.GetStringOr("marathon.user", "")
 	p := c.GetStringOr("marathon.password", "")
+	f := c.GetStringOr("marathon.format", "")
 
 	l := ""
 	if u != "" && p != "" {
 		l = u + ":" + p
 	}
 
-	return h, l, nil
+	return h, l, f, nil
 }
 
 func configFile() string {
@@ -62,7 +63,7 @@ func Config() (string, string, string, error) {
 	}
 
 	if config != "" {
-		h, l, e := readConfigfile(config)
+		h, l, f, e := readConfigfile(config)
 		if e != nil {
 			return "", "", "", e
 		}
@@ -71,6 +72,9 @@ func Config() (string, string, string, error) {
 		}
 		if login == "" {
 			login = l
+		}
+		if format == "" {
+			format = f
 		}
 	}
 
