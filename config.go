@@ -5,6 +5,7 @@ package main
 import (
 	"errors"
 	"flag"
+	"os"
 
 	"github.com/shoenig/config"
 )
@@ -36,6 +37,16 @@ func readConfigfile(filename string) (host, login string, e error) {
 	return h, l, nil
 }
 
+func configFile() string {
+	configLocations := [2]string{os.Getenv("HOME") + "/.config/marathonctl/config", "/etc/marathonctl"}
+	for _, location := range configLocations {
+		if _, err := os.Stat(location); err == nil {
+			return location
+		}
+	}
+	return ""
+}
+
 // todo(someday) read $HOME/.config/marathonctl/config
 // Read -config file
 // Then override with cli args
@@ -44,6 +55,10 @@ func Config() (string, string, string, error) {
 
 	if host != "" && login != "" {
 		return host, login, format, nil
+	}
+
+	if config == "" {
+		config = configFile()
 	}
 
 	if config != "" {
