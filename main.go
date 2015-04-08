@@ -14,7 +14,8 @@ const Help = `marathonctl <flags...> [action] <args...>
     app
        list                   - list all apps
        versions [id]          - list all versions of apps of id
-       show [id] [version]    - show config of app of id and version
+			 show [id]              - sow config and status of app of id (latest version)
+       show [id] [version]    - show config and status of app of id and version
        create [jsonfile]      - deploy application defined in jsonfile
        update [id] [jsonfile] - update application id as defined in jsonfile
        restart [id]           - restart app of id

@@ -81,10 +81,18 @@ type AppShow struct {
 }
 
 func (a AppShow) Apply(args []string) {
-	Check(len(args) == 2, "must provide id and version")
-	id := url.QueryEscape(args[0])
-	version := url.QueryEscape(args[1])
-	path := "/v2/apps/" + id + "/versions/" + version
+	path := ""
+	switch len(args) {
+	case 1:
+		id := url.QueryEscape(args[0])
+		path = "/v2/apps/" + id
+	case 2:
+		id := url.QueryEscape(args[0])
+		version := url.QueryEscape(args[1])
+		path = "/v2/apps/" + id + "/versions/" + version
+	default:
+		Check(false, "must provide id and/or version")
+	}
 	request := a.client.GET(path)
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to show app", e)
