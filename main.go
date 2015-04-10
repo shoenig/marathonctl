@@ -12,14 +12,17 @@ import (
 const Help = `marathonctl <flags...> [action] <args...>
  Actions
     app
-       list                   - list all apps
-       versions [id]          - list all versions of apps of id
-			 show [id]              - sow config and status of app of id (latest version)
-       show [id] [version]    - show config and status of app of id and version
-       create [jsonfile]      - deploy application defined in jsonfile
-       update [id] [jsonfile] - update application id as defined in jsonfile
-       restart [id]           - restart app of id
-       destroy [id]           - destroy and remove all instances of id
+       list                      - list all apps
+       versions [id]             - list all versions of apps of id
+       show [id]                 - show config and status of app of id (latest version)
+       show [id] [version]       - show config and status of app of id and version
+       create [jsonfile]         - deploy application defined in jsonfile
+       update [id] [jsonfile]    - update application id as defined in jsonfile
+       update cpu [id] [cpu%]    - update application id to have cpu% of cpu share
+       update memory [id] [MB]   - update application id to have MB of memory
+       update instances [id] [N] - update application id to have N instances
+       restart [id]              - restart app of id
+       destroy [id]              - destroy and remove all instances of id
 
     task
        list               - list all tasks

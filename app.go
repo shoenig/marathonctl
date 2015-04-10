@@ -7,9 +7,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type AppList struct {
@@ -154,13 +156,47 @@ type AppUpdate struct {
 }
 
 func (a AppUpdate) Apply(args []string) {
-	Check(len(args) == 2, "must specify id and jsonfile")
+	switch len(args) {
+	case 2:
+		a.fromJson(args)
+	case 3:
+		a.fromCLI(args)
+	default:
+		Check(false, "app update 2 or 3 arguments required")
+	}
+}
+
+func (a AppUpdate) fromJson(args []string) {
 	id := url.QueryEscape(args[0])
 	f, e := os.Open(args[1])
 	Check(e == nil, "failed to open jsonfile", e)
 	defer f.Close()
+	a.update(id, f)
+}
 
-	request := a.client.PUT("/v2/apps/"+id+"?force=true", f)
+func (a AppUpdate) fromCLI(args []string) {
+	val, e := strconv.ParseFloat(args[2], 64)
+	Check(e == nil, "valid number required", args[1])
+	var body string
+	switch args[0] {
+	case "instances":
+		body = fmt.Sprintf("{\"instances\": %f}", val)
+	case "memory":
+		fallthrough
+	case "mem":
+		body = fmt.Sprintf("{\"mem\": %f}", val)
+	case "cpu":
+		body = fmt.Sprintf("{\"cpus\": %f}", val)
+	default:
+		Check(false, "unknown update option", args[0])
+	}
+	id := url.QueryEscape(args[1])
+	a.update(id, ioutil.NopCloser(strings.NewReader(body)))
+}
+
+func (a AppUpdate) update(id string, body io.ReadCloser) {
+	url := "/v2/apps/" + id + "?force=true"
+	request := a.client.PUT(url, body)
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
