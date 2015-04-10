@@ -32,11 +32,11 @@ const Help = `marathonctl <flags...> [action] <args...>
        queue              - list all queued tasks
 
     group
-       group list                        - list all groups
-       group list [groupid]              - list groups in groupid
-       group create [jsonfile]           - create a group defined in jsonfile
-       group update [groupid] [jsonfile] - update group groupid as defined in jsonfile
-       group destroy [groupid]           - destroy group of groupid
+       list                        - list all groups
+       list [groupid]              - list groups in groupid
+       create [jsonfile]           - create a group defined in jsonfile
+       update [groupid] [jsonfile] - update group groupid as defined in jsonfile
+       destroy [groupid]           - destroy group of groupid
 
     deploy
        list               - list all active deploys
