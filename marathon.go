@@ -3,10 +3,12 @@ package main
 // All actions under command marathon
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -18,20 +20,40 @@ type MarathonPing struct {
 }
 
 func (p MarathonPing) Apply(args []string) {
-	request := p.client.GET("/ping")
-	start := time.Now()
-	response, e := p.client.Do(request)
-	Check(e == nil, "ping failed", e)
-	defer response.Body.Close()
-	elapsed := fmt.Sprintf("%v", time.Now().Sub(start))
-	fmt.Println(p.format.Format(strings.NewReader(elapsed), p.Humanize))
+	hosts := p.client.login.Hosts
+	timings := make(map[string]time.Duration)
+	for _, host := range hosts {
+		request, e := http.NewRequest("/ping", host, nil)
+		Check(e == nil, "could not create ping request")
+		p.client.tweak(request)
+		start := time.Now()
+		_, err := p.client.client.Do(request)
+		var elapsed time.Duration
+		if err == nil {
+			elapsed = time.Now().Sub(start)
+		}
+		timings[host] = elapsed
+	}
+
+	var b bytes.Buffer
+	for host, duration := range timings {
+		b.WriteString(host)
+		b.WriteString(" ")
+		if duration == 0 {
+			b.WriteString("-")
+		} else {
+			b.WriteString(duration.String())
+		}
+		b.WriteString("\n")
+	}
+	fmt.Println(p.format.Format(strings.NewReader(b.String()), p.Humanize))
 }
 
 func (P MarathonPing) Humanize(body io.Reader) string {
 	b, e := ioutil.ReadAll(body)
 	Check(e == nil, "reading ping response failed", e)
-	// todo print HOST ELAPSED title and print hosts
-	return fmt.Sprintf("elapsed: %s", string(b))
+	text := "HOST DURATION\n" + string(b)
+	return Columnize(text)
 }
 
 // leader

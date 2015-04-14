@@ -73,8 +73,11 @@ marathon.password: [password]
 #### Ping
 - This example demonstrates -h, -u for host/login information
 ```
-$ ./marathonctl -h http://localhost:8080 -u seth:seth /etc/marathon.properties marathon ping
-elapsed: 95.789975ms
+$ ./marathonctl -h http://marathon1:8080,http://marathon2:8080,http://marathon3:8080 -u user:pass marathon ping
+HOST                   DURATION
+http://marathon1:8080  11.004071ms
+http://marathon2:8080  25.422ms
+http://marathon3:8080  6.927772ms
 ```
 #### Leader
 - This example demonstrates -c and a file for host/login information
