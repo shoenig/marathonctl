@@ -67,6 +67,7 @@ func main() {
 	host, login, format, e := Config()
 
 	if e != nil {
+		fmt.Printf("config error: %s\n\n", e)
 		Usage()
 	}
 
