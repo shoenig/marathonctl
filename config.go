@@ -81,8 +81,8 @@ func Config() (string, string, string, error) {
 		}
 	}
 
-	if host == "" || login == "" {
-		return "", "", "", errors.New("no host or login info provided")
+	if host == "" {
+		return "", "", "", errors.New("no host info provided")
 	}
 
 	return host, login, format, nil
