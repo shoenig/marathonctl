@@ -80,6 +80,7 @@ func (t TaskList) HumanizeById(body io.Reader) string {
 		b.WriteString(task.Host)
 		b.WriteString(" ")
 		b.WriteString(task.Version)
+		b.WriteString("\n")
 		// ports?
 	}
 	title := "ID HOST VERSION\n"
