@@ -21,13 +21,23 @@ type Login struct {
 	Pass  string
 }
 
+func (l *Login) NeedsAuth() bool {
+	// Auth is only needed if User and Pass were set
+	return l.User != "" && l.Pass != ""
+}
+
 func NewLogin(hosts, login string) *Login {
 	hostlist := strings.Split(hosts, ",")
-	toks := strings.SplitN(login, ":", 2)
+	var user, pass string
+	if login != "" {
+		toks := strings.SplitN(login, ":", 2)
+		user = toks[0]
+		pass = toks[1]
+	}
 	return &Login{
 		Hosts: hostlist,
-		User:  toks[0],
-		Pass:  toks[1],
+		User:  user,
+		Pass:  pass,
 	}
 }
 
@@ -118,5 +128,7 @@ func (c *Client) PUT(path string, body io.ReadCloser) *http.Request {
 func (c *Client) tweak(request *http.Request) {
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
-	request.SetBasicAuth(c.login.User, c.login.Pass)
+	if c.login.NeedsAuth() {
+		request.SetBasicAuth(c.login.User, c.login.Pass)
+	}
 }
