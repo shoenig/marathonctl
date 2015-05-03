@@ -84,6 +84,7 @@ type AppShow struct {
 
 func (a AppShow) Apply(args []string) {
 	path := ""
+	fn := a.HumanizeById
 	switch len(args) {
 	case 1:
 		id := url.QueryEscape(args[0])
@@ -92,6 +93,7 @@ func (a AppShow) Apply(args []string) {
 		id := url.QueryEscape(args[0])
 		version := url.QueryEscape(args[1])
 		path = "/v2/apps/" + id + "/versions/" + version
+		fn = a.Humanize
 	default:
 		Check(false, "must provide id and/or version")
 	}
@@ -99,7 +101,24 @@ func (a AppShow) Apply(args []string) {
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to show app", e)
 	defer response.Body.Close()
-	fmt.Println(a.format.Format(response.Body, a.Humanize))
+	fmt.Println(a.format.Format(response.Body, fn))
+}
+
+func (a AppShow) HumanizeById(body io.Reader) string {
+	dec := json.NewDecoder(body)
+	var appbyid AppById
+	e := dec.Decode(&appbyid)
+	Check(e == nil, "failed to unmarshal response", e)
+	title := "INSTANCES MEM CMD\n"
+	var b bytes.Buffer
+	b.WriteString(strconv.Itoa(appbyid.App.Instances))
+	b.WriteString(" ")
+	mem := fmt.Sprintf("%.2f", appbyid.App.Mem)
+	b.WriteString(mem)
+	b.WriteString(" ")
+	b.WriteString(appbyid.App.Cmd)
+	text := title + b.String()
+	return Columnize(text)
 }
 
 func (a AppShow) Humanize(body io.Reader) string {
