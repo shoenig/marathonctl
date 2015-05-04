@@ -153,6 +153,7 @@ func (a AppCreate) Apply(args []string) {
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
 	Check(response.StatusCode != 409, "app already exists")
+	Check(response.StatusCode != 422, "app id is invalid")
 	fmt.Println(a.format.Format(response.Body, a.Humanize))
 }
 
