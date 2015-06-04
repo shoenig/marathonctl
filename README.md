@@ -7,6 +7,12 @@ go get github.com/shoenig/marathonctl
 ```
 - Maybe someday binary downloads will be available
 
+Deployment via Docker
+```
+# Add to ~/.bash_aliases
+alias marathonctl='docker run --net=host shoenig/marathonctl:latest'
+```
+
 ## Usage
 ```
 marathonctl <flags...> [action] <args...>
