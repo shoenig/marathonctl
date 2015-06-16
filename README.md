@@ -10,7 +10,7 @@ go get github.com/shoenig/marathonctl
 Deployment via Docker
 ```
 # Add to ~/.bash_aliases
-alias marathonctl='docker run --net=host shoenig/marathonctl:latest'
+alias marathonctl='docker run --rm --net=host shoenig/marathonctl:latest'
 ```
 
 ## Usage
