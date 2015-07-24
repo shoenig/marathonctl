@@ -47,6 +47,11 @@ const Help = `marathonctl <flags...> [action] <args...>
        abdicate - force the current leader to relinquish control
        ping     - ping Marathon master host[s]
 
+    artifact
+       upload [path] [file]   - upload artifact to artifacts store
+       get [path]             - get artifact from store
+       delete [path]          - delete artifact from store
+
  Flags
   -c [config file]
   -h [host]
@@ -113,6 +118,13 @@ func main() {
 			"ping":     MarathonPing{c, f},
 		},
 	}
+	artifact := &Category{
+		actions: map[string]Action{
+			"upload": ArtifactUpload{c, f},
+			"get":    ArtifactGet{c, f},
+			"delete": ArtifactDelete{c, f},
+		},
+	}
 	t := &Tool{
 		selections: map[string]Selector{
 			"app":      app,
@@ -120,6 +132,7 @@ func main() {
 			"group":    group,
 			"deploy":   deploy,
 			"marathon": marathon,
+			"artifact": artifact,
 		},
 	}
 
