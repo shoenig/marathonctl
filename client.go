@@ -97,7 +97,7 @@ func (c *Client) GET(path string) *http.Request {
 	return request
 }
 
-func (c *Client) POST(path string, body io.ReadCloser) *http.Request {
+func (c *Client) POST(path string, body io.Reader) *http.Request {
 	url := "HOST" + path
 	request, e := http.NewRequest("POST", url, body)
 	Check(e == nil, "failed to create POST request", e)
