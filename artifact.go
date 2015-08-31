@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"mime/multipart"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -44,7 +45,7 @@ func (a ArtifactUpload) Apply(args []string) {
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 
-	Check(response.StatusCode == 201, "unable to upload file")
+	Check(response.StatusCode == 201, "unable to upload file", stringifyResponse(response))
 	defer response.Body.Close()
 
 	fmt.Println(a.format.Format(strings.NewReader(response.Header.Get("Location")), a.Humanize))
@@ -68,7 +69,8 @@ func (a ArtifactGet) Apply(args []string) {
 	request := a.client.GET("/v2/artifacts" + url.QueryEscape(args[0]))
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to get response", e)
-	Check(response.StatusCode == 200, "artifact not found")
+	Check(response.StatusCode != 404, "artifact not found")
+	Check(response.StatusCode == 200, "error downloading artifact", stringifyResponse(response))
 	defer response.Body.Close()
 
 	b, e := ioutil.ReadAll(response.Body)
@@ -94,4 +96,14 @@ func (a ArtifactDelete) Apply(args []string) {
 
 func (a ArtifactDelete) Humanize(body io.Reader) string {
 	return "DELETED"
+}
+
+func stringifyResponse(res *http.Response) string {
+	cnt, err := ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		return fmt.Sprintf("%v", err)
+	}
+
+	return string(cnt)
 }
