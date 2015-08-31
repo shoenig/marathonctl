@@ -88,7 +88,7 @@ func (a ArtifactDelete) Apply(args []string) {
 	request := a.client.DELETE("/v2/artifacts" + url.QueryEscape(args[0]))
 	response, e := a.client.Do(request)
 	Check(e == nil, "failed to delete artifact", e)
-	Check(response.StatusCode == 200, "failed to delete artifact")
+	Check(response.StatusCode == 200, "failed to delete artifact", stringifyResponse(response))
 	defer response.Body.Close()
 
 	fmt.Println(a.format.Format(response.Body, a.Humanize))
