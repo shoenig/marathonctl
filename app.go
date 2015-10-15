@@ -177,13 +177,29 @@ type AppUpdate struct {
 
 func (a AppUpdate) Apply(args []string) {
 	switch len(args) {
+	case 1:
+		a.fromJsonBody(args)
 	case 2:
 		a.fromJson(args)
 	case 3:
 		a.fromCLI(args)
 	default:
-		Check(false, "app update 2 or 3 arguments required")
+		Check(false, "app update 1, 2 or 3 arguments required")
 	}
+}
+
+func (a AppUpdate) fromJsonBody(args []string) {
+	f, e := os.Open(args[0])
+	Check(e == nil, "failed to open jsonfile", e)
+	defer f.Close()
+
+	dec := json.NewDecoder(f)
+	var application Application
+	derr := dec.Decode(&application)
+	Check(derr == nil, "failed to unmarshal response", derr)
+	f.Seek(0, 0)
+	a.update(application.ID, f)
+
 }
 
 func (a AppUpdate) fromJson(args []string) {

@@ -17,6 +17,7 @@ const Help = `marathonctl <flags...> [action] <args...>
        show [id]                 - show config and status of app of id (latest version)
        show [id] [version]       - show config and status of app of id and version
        create [jsonfile]         - deploy application defined in jsonfile
+       update [jsonfile]         - update application as defined in jsonfile
        update [id] [jsonfile]    - update application id as defined in jsonfile
        update cpu [id] [cpu%]    - update application id to have cpu% of cpu share
        update memory [id] [MB]   - update application id to have MB of memory
