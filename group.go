@@ -106,7 +106,7 @@ type GroupDestroy struct {
 func (g GroupDestroy) Apply(args []string) {
 	Check(len(args) == 1, "must specify groupid")
 	groupid := url.QueryEscape(args[0])
-	path := "/v2/groups/" + groupid
+	path := "/v2/groups/" + groupid + "?force=true"
 	request := g.client.DELETE(path)
 	response, e := g.client.Do(request)
 	Check(e == nil, "destroy group failed", e)
@@ -139,7 +139,7 @@ func (g GroupUpdate) Apply(args []string) {
 	f, e := os.Open(args[1])
 	Check(e == nil, "failed to open jsonfile", e)
 	defer f.Close()
-	request := g.client.PUT("/v2/groups/"+groupid, f)
+	request := g.client.PUT("/v2/groups/"+groupid+"?force=true", f)
 	response, e := g.client.Do(request)
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
