@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -61,10 +62,23 @@ type Client struct {
 	login  *Login
 }
 
-func NewClient(login *Login) *Client {
+func NewClient(login *Login, insecure bool) *Client {
+	c := http.Client{}
+	if tr := getTransportConfig(insecure); tr != nil {
+		c.Transport = tr
+	}
 	return &Client{
-		client: http.Client{},
+		client: c,
 		login:  login,
+	}
+}
+
+func getTransportConfig(insecure bool) *http.Transport {
+	cfg := &tls.Config{}
+	cfg.InsecureSkipVerify = insecure
+	return &http.Transport{
+		TLSClientConfig:    cfg,
+		DisableCompression: true,
 	}
 }
 

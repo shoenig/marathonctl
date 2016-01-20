@@ -70,7 +70,7 @@ func Usage() {
 }
 
 func main() {
-	host, login, format, e := Config()
+	host, login, format, insecure, e := Config()
 
 	if e != nil {
 		fmt.Printf("config error: %s\n\n", e)
@@ -79,7 +79,7 @@ func main() {
 
 	f := NewFormatter(format)
 	l := NewLogin(host, login)
-	c := NewClient(l)
+	c := NewClient(l, insecure)
 	app := &Category{
 		actions: map[string]Action{
 			"list":     AppList{c, f},
