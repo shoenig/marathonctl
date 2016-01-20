@@ -57,6 +57,7 @@ const Help = `marathonctl <flags...> [action] <args...>
   -c [config file]
   -h [host]
   -u [user:password] (separated by colon)
+  -k - allow unverified tls connections
   -f [format]
        human  (simplified columns, default)
        json   (json on one line)
