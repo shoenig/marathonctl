@@ -109,8 +109,9 @@ func main() {
 	}
 	deploy := &Category{
 		actions: map[string]Action{
-			"list":   DeployList{c, f},
-			"cancel": DeployCancel{c, f},
+			"list":    DeployList{c, f},
+			"destroy": DeployCancel{c, f},
+			"cancel":  DeployCancel{c, f},
 		},
 	}
 	marathon := &Category{

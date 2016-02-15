@@ -64,7 +64,9 @@ func (d DeployCancel) Apply(args []string) {
 	request := d.client.DELETE(path)
 	response, e := d.client.Do(request)
 	Check(e == nil, "failed to cancel deploy", e)
+
 	defer response.Body.Close()
+	fmt.Println(d.format.Format(response.Body, d.Humanize))
 }
 
 func (d DeployCancel) Humanize(body io.Reader) string {
