@@ -11,11 +11,12 @@ import (
 )
 
 // cli arguments override configuration file
-func cliargs() (config, host, login, format string) {
+func cliargs() (config, host, login, format string, insecure bool) {
 	flag.StringVar(&config, "c", "", "config file")
 	flag.StringVar(&host, "h", "", "marathon host with transport and port")
 	flag.StringVar(&login, "u", "", "username and password")
 	flag.StringVar(&format, "f", "", "output format")
+	flag.BoolVar(&insecure, "k", false, "insecure - do not verify cacert")
 	flag.Parse()
 	return
 }
@@ -51,11 +52,11 @@ func configFile() string {
 // todo(someday) read $HOME/.config/marathonctl/config
 // Read -config file
 // Then override with cli args
-func Config() (string, string, string, error) {
-	config, host, login, format := cliargs()
+func Config() (string, string, string, bool, error) {
+	config, host, login, format, insecure := cliargs()
 
 	if host != "" && login != "" {
-		return host, login, format, nil
+		return host, login, format, insecure, nil
 	}
 
 	if config == "" {
@@ -65,7 +66,7 @@ func Config() (string, string, string, error) {
 	if config != "" {
 		h, l, f, e := readConfigfile(config)
 		if e != nil {
-			return "", "", "", e
+			return "", "", "", false, e
 		}
 		if host == "" {
 			host = h
@@ -82,8 +83,8 @@ func Config() (string, string, string, error) {
 	}
 
 	if host == "" {
-		return "", "", "", errors.New("no host info provided")
+		return "", "", "", false, errors.New("no host info provided")
 	}
 
-	return host, login, format, nil
+	return host, login, format, insecure, nil
 }

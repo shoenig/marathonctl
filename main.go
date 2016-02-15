@@ -57,6 +57,7 @@ const Help = `marathonctl <flags...> [action] <args...>
   -c [config file]
   -h [host]
   -u [user:password] (separated by colon)
+  -k - allow unverified tls connections
   -f [format]
        human  (simplified columns, default)
        json   (json on one line)
@@ -70,7 +71,7 @@ func Usage() {
 }
 
 func main() {
-	host, login, format, e := Config()
+	host, login, format, insecure, e := Config()
 
 	if e != nil {
 		fmt.Printf("config error: %s\n\n", e)
@@ -79,7 +80,7 @@ func main() {
 
 	f := NewFormatter(format)
 	l := NewLogin(host, login)
-	c := NewClient(l)
+	c := NewClient(l, insecure)
 	app := &Category{
 		actions: map[string]Action{
 			"list":     AppList{c, f},

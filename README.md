@@ -1,7 +1,7 @@
 # marathonctl
 marathonctl is a command line tool for [Marathon](https://mesosphere.github.io/marathon/docs/rest-api.html)
 
-## Install 
+## Install
 ```
 go get github.com/shoenig/marathonctl
 ```
@@ -57,6 +57,7 @@ marathonctl <flags...> [action] <args...>
   -c [config file]
   -h [host]
   -u [user:password] (separated by colon)
+  -k - allow unverified tls connections
   -f [format]
        human  (simplified columns, default)
        json   (json on one line)
@@ -66,7 +67,7 @@ marathonctl <flags...> [action] <args...>
 
 ## Configuration
 - Specify using "-c [file]" or "-h [host:port]"
-    
+
 ### Configuration Properties
 ```
 marathon.host: [hosts] (ex http://node1.indeed.com,http://node2.indeed.com,http://node3.indeed.com)
@@ -104,21 +105,21 @@ $ ./marathonctl -f jsonpp -c /etc/marathonctl.properties marathon leader
 - This example demonstrates the default human readable output
 ````
 $ ./marathonctl -c /etc/marathonctl.properties group list
-GROUPID                                     VERSION                   GROUPS  APPS  
-/                                           2015-04-07T20:29:35.672Z  3       0     
-/websites                                   2015-04-07T20:29:35.672Z  2       0     
-/websites/indeed                            2015-04-07T20:29:35.672Z  1       0     
-/websites/indeed/indeed-pings               2015-04-07T20:29:35.672Z  1       0     
-/websites/indeed/indeed-pings/a.indeed.com  2015-04-07T20:29:35.672Z  0       2     
-/websites/google                            2015-04-07T20:29:35.672Z  2       0     
-/websites/google/news.google.com            2015-04-07T20:29:35.672Z  0       1     
+GROUPID                                     VERSION                   GROUPS  APPS
+/                                           2015-04-07T20:29:35.672Z  3       0
+/websites                                   2015-04-07T20:29:35.672Z  2       0
+/websites/indeed                            2015-04-07T20:29:35.672Z  1       0
+/websites/indeed/indeed-pings               2015-04-07T20:29:35.672Z  1       0
+/websites/indeed/indeed-pings/a.indeed.com  2015-04-07T20:29:35.672Z  0       2
+/websites/google                            2015-04-07T20:29:35.672Z  2       0
+/websites/google/news.google.com            2015-04-07T20:29:35.672Z  0       1
 /websites/google/calendar.google.com        2015-04-07T20:29:35.672Z  0       1
 ````
 #### App Create
 - This example demonstrates creating an app as specified in a json file
 ````
-$ ./marathonctl -c /etc/marathonctl.properties app create sample/ping.google.json 
-APPID                VERSION                   
+$ ./marathonctl -c /etc/marathonctl.properties app create sample/ping.google.json
+APPID                VERSION
 /hoenig/ping-google  2015-04-07T21:41:53.440Z
 ````
 
