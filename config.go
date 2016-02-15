@@ -11,7 +11,8 @@ import (
 )
 
 // cli arguments override configuration file
-func cliargs() (config, host, login, format string, insecure bool) {
+func cliargs() (version bool, config, host, login, format string, insecure bool) {
+	flag.BoolVar(&version, "v", false, "version number (git sha1)")
 	flag.StringVar(&config, "c", "", "config file")
 	flag.StringVar(&host, "h", "", "marathon host with transport and port")
 	flag.StringVar(&login, "u", "", "username and password")
@@ -52,11 +53,15 @@ func configFile() string {
 // todo(someday) read $HOME/.config/marathonctl/config
 // Read -config file
 // Then override with cli args
-func Config() (string, string, string, bool, error) {
-	config, host, login, format, insecure := cliargs()
+func Config() (bool, string, string, string, bool, error) {
+	version, config, host, login, format, insecure := cliargs()
+
+	if version {
+		return version, "", "", "", false, nil
+	}
 
 	if host != "" && login != "" {
-		return host, login, format, insecure, nil
+		return version, host, login, format, insecure, nil
 	}
 
 	if config == "" {
@@ -66,7 +71,7 @@ func Config() (string, string, string, bool, error) {
 	if config != "" {
 		h, l, f, e := readConfigfile(config)
 		if e != nil {
-			return "", "", "", false, e
+			return false, "", "", "", false, e
 		}
 		if host == "" {
 			host = h
@@ -83,8 +88,8 @@ func Config() (string, string, string, bool, error) {
 	}
 
 	if host == "" {
-		return "", "", "", false, errors.New("no host info provided")
+		return false, "", "", "", false, errors.New("no host info provided")
 	}
 
-	return host, login, format, insecure, nil
+	return version, host, login, format, insecure, nil
 }

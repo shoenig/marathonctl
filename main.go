@@ -71,11 +71,16 @@ func Usage() {
 }
 
 func main() {
-	host, login, format, insecure, e := Config()
+	version, host, login, format, insecure, e := Config()
 
 	if e != nil {
 		fmt.Printf("config error: %s\n\n", e)
 		Usage()
+	}
+
+	if version {
+		fmt.Println(Version)
+		os.Exit(0)
 	}
 
 	f := NewFormatter(format)
