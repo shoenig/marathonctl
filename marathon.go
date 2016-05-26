@@ -23,8 +23,8 @@ func (p MarathonPing) Apply(args []string) {
 	hosts := p.client.login.Hosts
 	timings := make(map[string]time.Duration)
 	for _, host := range hosts {
-		request, e := http.NewRequest("/ping", host, nil)
-		Check(e == nil, "could not create ping request")
+		request, e := http.NewRequest("GET", host+"/ping", nil)
+		Check(e == nil, "could not create ping request", e)
 		p.client.tweak(request)
 		start := time.Now()
 		_, err := p.client.client.Do(request)
