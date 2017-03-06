@@ -123,5 +123,3 @@ APPID                VERSION
 /hoenig/ping-google  2015-04-07T21:41:53.440Z
 ````
 
-## Bugs
-- ping does not return json
