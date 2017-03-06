@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -18,6 +17,13 @@ type MarathonPing struct {
 	client *Client
 	format Formatter
 }
+
+type MarathonPingResult struct {
+	Host     string        `json:"host"`
+	Duration time.Duration `json:"duration"`
+}
+
+type MarathonPingResultList []MarathonPingResult
 
 func (p MarathonPing) Apply(args []string) {
 	hosts := p.client.login.Hosts
@@ -35,24 +41,32 @@ func (p MarathonPing) Apply(args []string) {
 		timings[host] = elapsed
 	}
 
-	var b bytes.Buffer
+	pingResultList := make([]MarathonPingResult, len(hosts))
+
+	i := 0
 	for host, duration := range timings {
-		b.WriteString(host)
-		b.WriteString(" ")
-		if duration == 0 {
-			b.WriteString("-")
-		} else {
-			b.WriteString(duration.String())
-		}
-		b.WriteString("\n")
+		pingResultList[i] = MarathonPingResult{Host: host, Duration: duration}
+		i += 1
 	}
-	fmt.Println(p.format.Format(strings.NewReader(b.String()), p.Humanize))
+	jsonBytes, e := json.Marshal(pingResultList)
+	Check(e == nil, "failed to marshal response", e)
+	fmt.Println(p.format.Format(strings.NewReader(string(jsonBytes)), p.Humanize))
 }
 
 func (P MarathonPing) Humanize(body io.Reader) string {
-	b, e := ioutil.ReadAll(body)
-	Check(e == nil, "reading ping response failed", e)
-	text := "HOST DURATION\n" + string(b)
+	dec := json.NewDecoder(body)
+	var pingResults MarathonPingResultList
+	e := dec.Decode(&pingResults)
+	Check(e == nil, "failed to unmarshal response", e)
+	title := "HOST DURATION\n"
+	var b bytes.Buffer
+	for _, pingResult := range pingResults {
+		b.WriteString(pingResult.Host)
+		b.WriteString(" ")
+		b.WriteString(pingResult.Duration.String())
+		b.WriteString("\n")
+	}
+	text := title + b.String()
 	return Columnize(text)
 }
 
