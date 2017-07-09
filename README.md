@@ -1,5 +1,8 @@
 # marathonctl
+
 marathonctl is a command line tool for [Marathon](https://mesosphere.github.io/marathon/docs/rest-api.html)
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/shoenig/marathonctl)](https://goreportcard.com/report/github.com/shoenig/marathonctl) [![Build Status](https://travis-ci.org/shoenig/marathonctl.svg?branch=master)](https://travis-ci.org/shoenig/marathonctl) [![GoDoc](https://godoc.org/github.com/shoenig/marathonctl?status.svg)](https://godoc.org/github.com/shoenig/marathonctl) [![License](https://img.shields.io/github/license/shoenig/marathonctl.svg?style=flat-square)](LICENSE)
 
 ## Install
 ```

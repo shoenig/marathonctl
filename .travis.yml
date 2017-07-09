@@ -1,0 +1,12 @@
+language: go
+
+go:
+  - 1.x
+
+install:
+  - go get github.com/shoenig/config
+
+script:
+  - go build ./...
+  - go vet ./...
+  - go test ./...
