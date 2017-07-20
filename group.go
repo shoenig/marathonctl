@@ -113,7 +113,7 @@ func (g GroupDestroy) Apply(args []string) {
 	defer response.Body.Close()
 	c := response.StatusCode
 	Check(c != 404, "unknown group")
-	Check(c == 200, "destroy group bad status", c)
+	Check(c == 200, "destroy group bad status", c, g.format.Format(response.Body, g.Humanize))
 
 	fmt.Println(g.format.Format(response.Body, g.Humanize))
 }
@@ -145,7 +145,7 @@ func (g GroupUpdate) Apply(args []string) {
 	defer response.Body.Close()
 
 	sc := response.StatusCode
-	Check(sc == 200, "bad status code", sc)
+	Check(sc == 200, "bad status code", sc, g.format.Format(response.Body, g.Humanize))
 
 	fmt.Println(g.format.Format(response.Body, g.Humanize))
 }

@@ -237,7 +237,7 @@ func (a AppUpdate) update(id string, body io.ReadCloser) {
 	Check(e == nil, "failed to get response", e)
 	defer response.Body.Close()
 	sc := response.StatusCode
-	Check(sc == 200, "bad status code", sc)
+	Check(sc == 200, "bad status code", sc, a.format.Format(response.Body, a.Humanize))
 	fmt.Println(a.format.Format(response.Body, a.Humanize))
 }
 
@@ -289,7 +289,7 @@ func (a AppDestroy) Apply(args []string) {
 	Check(e == nil, "destroy app failed", e)
 	c := response.StatusCode
 	// documentation says this is 204, wtf
-	Check(c == 200, "destroy app bad status", c)
+	Check(c == 200, "destroy app bad status", c, a.format.Format(response.Body, a.Humanize))
 	defer response.Body.Close()
 	fmt.Println(a.format.Format(response.Body, a.Humanize))
 }

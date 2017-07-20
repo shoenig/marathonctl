@@ -114,7 +114,7 @@ func (t TaskKill) killAll(id string) {
 
 	sc := response.StatusCode
 	Check(sc != 404, "unknown id")
-	Check(sc == 200, "failed with status code", sc)
+	Check(sc == 200, "failed with status code", sc, t.format.Format(response.Body, t.Humanize))
 	t.format.Format(response.Body, t.Humanize)
 }
 
@@ -128,7 +128,7 @@ func (t TaskKill) killOnly(id, taskid string) {
 	defer response.Body.Close()
 	sc := response.StatusCode
 	Check(sc != 404, "unknown appid or taskid")
-	Check(sc == 200, "failed with status code", sc)
+	Check(sc == 200, "failed with status code", sc, t.format.Format(response.Body, t.Humanize))
 	t.format.Format(response.Body, t.Humanize)
 }
 
