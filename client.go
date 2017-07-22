@@ -77,7 +77,7 @@ func getTransportConfig(insecure bool) *http.Transport {
 	cfg := &tls.Config{}
 	cfg.InsecureSkipVerify = insecure
 	return &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
+		Proxy:              http.ProxyFromEnvironment,
 		TLSClientConfig:    cfg,
 		DisableCompression: true,
 	}

@@ -81,7 +81,7 @@ func (l MarathonLeader) Apply(args []string) {
 	response, e := l.client.Do(request)
 	Check(e == nil, "get leader failed", e)
 	c := response.StatusCode
-	Check(c == 200, "get leader bad status", c)
+	Check(c == 200, "get leader bad status", c, l.format.Format(response.Body, l.Humanize))
 	defer response.Body.Close()
 	fmt.Println(l.format.Format(response.Body, l.Humanize))
 }
@@ -106,7 +106,7 @@ func (a MarathonAbdicate) Apply(args []string) {
 	response, e := a.client.Do(request)
 	Check(e == nil, "abdicate request failed", e)
 	c := response.StatusCode
-	Check(c == 200, "abdicate bad status", c)
+	Check(c == 200, "abdicate bad status", c, a.format.Format(response.Body, a.Humanize))
 	defer response.Body.Close()
 	fmt.Println(a.format.Format(response.Body, a.Humanize))
 }
