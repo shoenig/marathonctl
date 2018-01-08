@@ -1,0 +1,79 @@
+version: '2'
+
+services:
+  zookeeper:
+    image: netflixoss/exhibitor:1.5.2
+    container_name: marathonctl-zookeeper
+    network_mode: "host"
+    tmpfs:
+      - /tmp
+
+  mesosmaster:
+    image: mesosphere/mesos:1.2.2
+    container_name: marathonctl-mesosmaster
+    network_mode: "host"
+    tmpfs:
+      - /tmp
+    environment:
+      - MESOS_PORT=5050
+      - MESOS_ZK=zk://127.0.0.1:2181/mesos
+      - MESOS_QUORUM=1
+      - MESOS_REGISTRY=in_memory
+      - MESOS_LOG_DIR=/var/log/mesos
+      - MESOS_WORK_DIR=/var/tmp/mesos
+    volumes:
+      - /tmp/mesos/log:/var/log/mesos
+      - /tmp/mesos/tmp:/var/tmp/mesos
+    entrypoint:
+      - mesos-master
+    command:
+      - --no-authenticate_agents
+      - --no-authenticate_frameworks
+      - --no-authenticate_http_frameworks
+
+  mesosslave:
+    image: mesosphere/mesos:1.2.2
+    container_name: marathonctl-mesosslave
+    network_mode: "host"
+    tmpfs:
+      - /tmp
+      - /run/systemd
+    volumes:
+      - /sys:/sys
+      - /cgroup:/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - MESOS_PORT=5051
+      - MESOS_MASTER=zk://127.0.0.1:2181/mesos
+      - MESOS_SWITCH_USER=0
+      - MESOS_ISOLATOR=posix
+      - MESOS_CONTAINERIZERS=mesos
+      - MESOS_LOG_DIR=/var/log/mesos
+      - MESOS_WORK_DIR=/var/tmp/mesos
+      - MESOS_LAUNCHER=posix
+    entrypoint:
+      - mesos-slave
+    command:
+      - --no-systemd_enable_support
+
+  marathon:
+    image: mesosphere/marathon:v1.5.5
+    container_name: marathonctl-marathon
+    network_mode: "host"
+    volumes:
+      - /sys:/sys
+      - /cgroup:/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
+    tmpfs:
+      - /tmp
+    environment:
+      - JAVA_HOME /docker-java-home
+    entrypoint:
+      - /marathon/bin/start
+    command:
+      - --zk
+      - zk://127.0.0.1:2181/marathon
+      - --http_port
+      - "8888"
+      - --master
+      - local
