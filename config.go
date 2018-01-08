@@ -27,7 +27,7 @@ func cliargs() flags {
 	flag.BoolVar(&f.version, "v", false, "display version (git sha1) and exit")
 	flag.BoolVar(&f.semver, "s", false, "display semversion and exit")
 	flag.StringVar(&f.configfile, "c", "", "path to configfile")
-	flag.StringVar(&f.host, "h", "", "override marathon host (with transport and port)")
+	flag.StringVar(&f.host, "h", "", "override marathon host(s) (with transport and port)")
 	flag.StringVar(&f.login, "u", "", "override username and password")
 	flag.StringVar(&f.format, "f", "", "override output format (raw, json, jsonpp)")
 	flag.BoolVar(&f.insecure, "k", false, "insecure - do not verify certificate authority")
@@ -53,13 +53,15 @@ func readConfigfile(filename string) (string, string, string, error) {
 	return host, login, format, nil
 }
 
-func findBestConfigfile() string {
-	locations := [2]string{
-		filepath.Join(os.Getenv("HOME"), ".config", "marathonctl", "config"),
-		filepath.Join("etc", "marathonctl"),
+func defaultConfigfileLocations() []string {
+	return []string{
+		filepath.Clean(filepath.Join(os.Getenv("HOME"), ".config", "marathonctl", "config")),
+		filepath.FromSlash("/etc/marathonctl"),
 	}
+}
 
-	for _, location := range locations {
+func findBestConfigfile() string {
+	for _, location := range defaultConfigfileLocations() {
 		if _, err := os.Stat(location); err == nil {
 			return location
 		}
