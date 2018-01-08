@@ -3,93 +3,108 @@
 package main
 
 import (
-	"errors"
 	"flag"
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/shoenig/config"
 )
 
+type flags struct {
+	version    bool
+	semver     bool
+	configfile string
+	host       string
+	login      string
+	format     string
+	insecure   bool
+}
+
 // cli arguments override configuration file
-func cliargs() (version bool, config, host, login, format string, insecure bool) {
-	flag.BoolVar(&version, "v", false, "version number (git sha1)")
-	flag.StringVar(&config, "c", "", "config file")
-	flag.StringVar(&host, "h", "", "marathon host with transport and port")
-	flag.StringVar(&login, "u", "", "username and password")
-	flag.StringVar(&format, "f", "", "output format")
-	flag.BoolVar(&insecure, "k", false, "insecure - do not verify cacert")
+func cliargs() flags {
+	var f flags
+	flag.BoolVar(&f.version, "v", false, "display version (git sha1) and exit")
+	flag.BoolVar(&f.semver, "s", false, "display semversion and exit")
+	flag.StringVar(&f.configfile, "c", "", "path to configfile")
+	flag.StringVar(&f.host, "h", "", "override marathon host(s) (with transport and port)")
+	flag.StringVar(&f.login, "u", "", "override username and password")
+	flag.StringVar(&f.format, "f", "", "override output format (raw, json, jsonpp)")
+	flag.BoolVar(&f.insecure, "k", false, "insecure - do not verify certificate authority")
 	flag.Parse()
-	return
+	return f
 }
 
-func readConfigfile(filename string) (host, login, format string, e error) {
-	c, e := config.ReadProperties(filename)
-	if e != nil {
-		return "", "", "", e
+func readConfigfile(filename string) (string, string, string, error) {
+	props, err := config.ReadProperties(filename)
+	if err != nil {
+		return "", "", "", err
 	}
-	h := c.GetStringOr("marathon.host", "")
-	u := c.GetStringOr("marathon.user", "")
-	p := c.GetStringOr("marathon.password", "")
-	f := c.GetStringOr("marathon.format", "")
+	host := props.GetStringOr("marathon.host", "")
+	user := props.GetStringOr("marathon.user", "")
+	pass := props.GetStringOr("marathon.password", "")
+	format := props.GetStringOr("marathon.format", "")
 
-	l := ""
-	if u != "" && p != "" {
-		l = u + ":" + p
+	login := ""
+	if user != "" && pass != "" {
+		login = user + ":" + pass
 	}
 
-	return h, l, f, nil
+	return host, login, format, nil
 }
 
-func configFile() string {
-	configLocations := [2]string{os.Getenv("HOME") + "/.config/marathonctl/config", "/etc/marathonctl"}
-	for _, location := range configLocations {
+func defaultConfigfileLocations() []string {
+	return []string{
+		filepath.Clean(filepath.Join(os.Getenv("HOME"), ".config", "marathonctl", "config")),
+		filepath.FromSlash("/etc/marathonctl"),
+	}
+}
+
+func findBestConfigfile() string {
+	for _, location := range defaultConfigfileLocations() {
 		if _, err := os.Stat(location); err == nil {
 			return location
 		}
 	}
+
 	return ""
 }
 
-// todo(someday) read $HOME/.config/marathonctl/config
-// Read -config file
-// Then override with cli args
-func Config() (bool, string, string, string, bool, error) {
-	version, config, host, login, format, insecure := cliargs()
+// loadConfig will parse the CLI flags.
+// If --version or --semver are set, no further configuration
+// is read. Otherwise, configuration is read from --configfile as
+// specified, and then overridden with provided CLI flags.
+func loadConfig() (flags, error) {
+	f := cliargs()
 
-	if version {
-		return version, "", "", "", false, nil
+	if f.version || f.semver {
+		return f, nil
 	}
 
-	if host != "" && login != "" {
-		return version, host, login, format, insecure, nil
+	if f.host != "" && f.login != "" {
+		return f, nil
 	}
 
-	if config == "" {
-		config = configFile()
+	if f.configfile == "" {
+		f.configfile = findBestConfigfile()
 	}
 
-	if config != "" {
-		h, l, f, e := readConfigfile(config)
-		if e != nil {
-			return false, "", "", "", false, e
+	if f.configfile != "" {
+		fileHost, fileLogin, fileFormat, err := readConfigfile(f.configfile)
+		if err != nil {
+			return flags{}, fmt.Errorf("failed to read config file: %v", err)
 		}
-		if host == "" {
-			host = h
+
+		if f.host == "" && fileHost != "" {
+			f.host = fileHost
 		}
-		if login == "" {
-			login = l
+		if f.login == "" && fileLogin != "" {
+			f.login = fileLogin
 		}
-		if format == "" {
-			format = f
-			if format == "" {
-				format = "human"
-			}
+		if f.format == "" && fileFormat != "" {
+			f.format = fileFormat
 		}
 	}
 
-	if host == "" {
-		return false, "", "", "", false, errors.New("no host info provided")
-	}
-
-	return version, host, login, format, insecure, nil
+	return f, nil
 }

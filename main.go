@@ -63,6 +63,8 @@ const Help = `marathonctl <flags...> [action] <args...>
        json   (json on one line)
        jsonpp (json pretty printed)
        raw    (the exact response from Marathon)
+  -v print git sha1
+  -s print semver version
 `
 
 func Usage() {
@@ -71,66 +73,71 @@ func Usage() {
 }
 
 func main() {
-	version, host, login, format, insecure, e := Config()
+	conf, err := loadConfig()
 
-	if e != nil {
-		fmt.Printf("config error: %s\n\n", e)
+	if err != nil {
+		fmt.Printf("config error: %s\n\n", err)
 		Usage()
 	}
 
-	if version {
+	if conf.version {
 		fmt.Println(Version)
 		os.Exit(0)
 	}
 
-	f := NewFormatter(format)
-	l := NewLogin(host, login)
-	c := NewClient(l, insecure)
+	if conf.semver {
+		fmt.Println(Semver)
+		os.Exit(0)
+	}
+
+	formatter := NewFormatter(conf.format)
+	login := NewLogin(conf.host, conf.login)
+	client := NewClient(login, conf.insecure)
 	app := &Category{
 		actions: map[string]Action{
-			"list":     AppList{c, f},
-			"versions": AppVersions{c, f},
-			"show":     AppShow{c, f},
-			"create":   AppCreate{c, f},
-			"update":   AppUpdate{c, f},
-			"restart":  AppRestart{c, f},
-			"destroy":  AppDestroy{c, f},
+			"list":     AppList{client, formatter},
+			"versions": AppVersions{client, formatter},
+			"show":     AppShow{client, formatter},
+			"create":   AppCreate{client, formatter},
+			"update":   AppUpdate{client, formatter},
+			"restart":  AppRestart{client, formatter},
+			"destroy":  AppDestroy{client, formatter},
 		},
 	}
 	task := &Category{
 		actions: map[string]Action{
-			"list":  TaskList{c, f},
-			"kill":  TaskKill{c, f},
-			"queue": TaskQueue{c, f},
+			"list":  TaskList{client, formatter},
+			"kill":  TaskKill{client, formatter},
+			"queue": TaskQueue{client, formatter},
 		},
 	}
 	group := &Category{
 		actions: map[string]Action{
-			"list":    GroupList{c, f},
-			"create":  GroupCreate{c, f},
-			"update":  GroupUpdate{c, f},
-			"destroy": GroupDestroy{c, f},
+			"list":    GroupList{client, formatter},
+			"create":  GroupCreate{client, formatter},
+			"update":  GroupUpdate{client, formatter},
+			"destroy": GroupDestroy{client, formatter},
 		},
 	}
 	deploy := &Category{
 		actions: map[string]Action{
-			"list":    DeployList{c, f},
-			"destroy": DeployCancel{c, f},
-			"cancel":  DeployCancel{c, f},
+			"list":    DeployList{client, formatter},
+			"destroy": DeployCancel{client, formatter},
+			"cancel":  DeployCancel{client, formatter},
 		},
 	}
 	marathon := &Category{
 		actions: map[string]Action{
-			"leader":   MarathonLeader{c, f},
-			"abdicate": MarathonAbdicate{c, f},
-			"ping":     MarathonPing{c, f},
+			"leader":   MarathonLeader{client, formatter},
+			"abdicate": MarathonAbdicate{client, formatter},
+			"ping":     MarathonPing{client, formatter},
 		},
 	}
 	artifact := &Category{
 		actions: map[string]Action{
-			"upload": ArtifactUpload{c, f},
-			"get":    ArtifactGet{c, f},
-			"delete": ArtifactDelete{c, f},
+			"upload": ArtifactUpload{client, formatter},
+			"get":    ArtifactGet{client, formatter},
+			"delete": ArtifactDelete{client, formatter},
 		},
 	}
 	t := &Tool{

@@ -66,6 +66,8 @@ marathonctl <flags...> [action] <args...>
        json   (json on one line)
        jsonpp (json pretty printed)
        raw    (the exact response from Marathon)
+  -v print git sha1
+  -s print semver version
 ```
 
 ## Configuration
