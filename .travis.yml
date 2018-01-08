@@ -5,6 +5,7 @@ go:
 
 install:
   - go get github.com/shoenig/config
+  - go get github.com/stretchr/testify
 
 script:
   - go build ./...
