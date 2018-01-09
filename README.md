@@ -5,12 +5,15 @@ marathonctl is a command line tool for [Marathon](https://mesosphere.github.io/m
 [![Go Report Card](https://goreportcard.com/badge/github.com/shoenig/marathonctl)](https://goreportcard.com/report/github.com/shoenig/marathonctl) [![Build Status](https://travis-ci.org/shoenig/marathonctl.svg?branch=master)](https://travis-ci.org/shoenig/marathonctl) [![GoDoc](https://godoc.org/github.com/shoenig/marathonctl?status.svg)](https://godoc.org/github.com/shoenig/marathonctl) [![License](https://img.shields.io/github/license/shoenig/marathonctl.svg?style=flat-square)](LICENSE)
 
 ## Install
-```
-go get github.com/shoenig/marathonctl
-```
-- Maybe someday binary downloads will be available
+### binary
+Binary downloads available! Get the latest from the [releases page](https://github.com/shoenig/marathonctl/releases).
 
-Deployment via Docker
+### source
+```
+go get -u github.com/shoenig/marathonctl
+```
+
+### docker
 ```
 # Add to ~/.bash_aliases
 alias marathonctl='docker run --rm --net=host shoenig/marathonctl:latest'
