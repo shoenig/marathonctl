@@ -22,4 +22,12 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+# binaries
 marathonctl
+marathonctl_*
+
+# vendor
+vendor/
+marathonctl-v0.0.3.tar.gz
+CHECKSUM.txt
