@@ -3,7 +3,6 @@
 set -euo pipefail
 
 previous=$(git tag --sort=version:refname | tail -n 1)
-
 read -p "what is the new release version (previous: ${previous})? " ; new=${REPLY}
 
 # tag this release in git
@@ -18,9 +17,6 @@ go generate
 # use gox to build all the cross platform versions
 echo "building all versions ..."
 gox
-
-
-#!/bin/bash
 
 # create checksums for each binary
 echo "md5 checksums for release ${new}" > CHECKSUM.txt
