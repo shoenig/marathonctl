@@ -283,7 +283,7 @@ type AppDestroy struct {
 
 func (a AppDestroy) Apply(args []string) {
 	Check(len(args) == 1, "must specify id")
-	path := "/v2/apps/" + url.QueryEscape(args[0])
+	path := "/v2/apps/" + url.QueryEscape(args[0]) + "?force=true"
 	request := a.client.DELETE(path)
 	response, e := a.client.Do(request)
 	Check(e == nil, "destroy app failed", e)
