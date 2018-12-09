@@ -74,6 +74,7 @@ func (a ArtifactGet) Apply(args []string) {
 	defer response.Body.Close()
 
 	b, e := ioutil.ReadAll(response.Body)
+	Check(e == nil, "failed to fetch whole response body", e)
 	os.Stdout.Write(b)
 }
 
