@@ -10,7 +10,7 @@ Binary downloads available! Get the latest from the [releases page](https://gith
 
 ### source
 ```
-go get -u github.com/shoenig/marathonctl
+go install github.com/shoenig/marathonctl@latest
 ```
 
 ### docker
