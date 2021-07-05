@@ -1,8 +1,9 @@
 module github.com/shoenig/marathonctl
 
+go 1.16
+
 require (
-	github.com/mitchellh/gox v0.4.0 // indirect
-	github.com/mitchellh/iochan v0.0.0-20150529224432-87b45ffd0e95 // indirect
-	github.com/shoenig/config v1.0.0
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.2.2
 )

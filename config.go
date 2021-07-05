@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/shoenig/config"
+	"github.com/shoenig/marathonctl/config"
 )
 
 type flags struct {
