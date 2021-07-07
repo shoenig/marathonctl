@@ -144,7 +144,7 @@ type AppCreate struct {
 }
 
 func (a AppCreate) Apply(args []string) {
-	Check(len(args) == 1, "must specifiy 1 jsonfile")
+	Check(len(args) == 1, "must specify 1 jsonfile")
 	f, e := os.Open(args[0])
 	Check(e == nil, "failed to open jsonfile", e)
 	defer f.Close()
